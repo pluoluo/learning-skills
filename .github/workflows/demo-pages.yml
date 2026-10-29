@@ -1,0 +1,52 @@
+name: Publish interactive lesson demo
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - examples/perimeter-area/**
+      - skills/interactive-topic-lesson/**
+      - .github/workflows/demo-pages.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: github-pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/configure-pages@v5
+      - name: Validate and build the original public example
+        run: |
+          node skills/interactive-topic-lesson/scripts/validate.mjs examples/perimeter-area/lesson.json
+          node skills/interactive-topic-lesson/scripts/build.mjs examples/perimeter-area/lesson.json --out dist/demo
+          mkdir -p _site
+          cp dist/demo/index.html _site/index.html
+          cp LICENSE _site/LICENSE
+          touch _site/.nojekyll
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Publish demo
+        id: deployment
+        uses: actions/deploy-pages@v4
