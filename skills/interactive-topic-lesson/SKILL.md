@@ -4,7 +4,7 @@ license: MIT
 description: Create a self-contained interactive learning lesson around a concrete learning difficulty, concept relationship, or curiosity. Produces a browser lesson plus a validated content package for host applications. Use for 互动专题、互动小课、知识点探索 and learning-by-doing activities; printable exam layout is a separate task.
 metadata:
   author: pluoluo
-  version: "0.1.2"
+  version: "0.1.3"
 ---
 
 # Interactive topic lesson
@@ -35,7 +35,7 @@ Keep the canvas independent of the standalone player's navigation and test UI. I
 
 ## Validate, repair and deliver
 
-Choose delivery for the actual host capabilities using [references/agent-delivery.md](references/agent-delivery.md). Desktop agents are the primary interaction scenario; messaging agents are also important, and CLI remains supported. The agent handles tool execution and environment checks. Give the user an accessible course artifact and a clear next action rather than shell instructions or a remote machine's file path alone.
+Separate authoring from the learner's device using [references/agent-delivery.md](references/agent-delivery.md). Tablet browsers are the primary learning surface. A persistent agent such as Hermes can build and temporarily host the lesson for LAN access; desktop agents support authoring, preview and revisions, and CLI remains compatible. When the task includes tablet/LAN delivery, choose the hosting implementation from the agent's actual environment and provide a reachable lesson URL, availability period and stop method. Host only this lesson's intended public content, preserve existing services, and keep the scope within the requested LAN. The agent handles deployment and network checks; a loopback-only check does not prove the tablet can connect. If hosting is unavailable, retain the file and explain the delivery limit.
 
 From the installed skill directory, run:
 

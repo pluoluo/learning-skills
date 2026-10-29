@@ -6,6 +6,8 @@
 
 目前提供 **[互动专题小课 · interactive-topic-lesson](skills/interactive-topic-lesson/SKILL.md)**。
 
+推荐的使用方式是：**家长向 Agent 提需求 → Agent 生成并交付课件 → 孩子在平板浏览器中动手探索。** Hermes 等常驻 Agent 可以利用已有部署环境，临时托管课件，方便家里的平板通过局域网链接打开。
+
 ![周长与面积互动小课预览](https://github.com/pluoluo/learning-skills/releases/download/v0.1.1/perimeter-area-preview.png)
 
 ## 它能帮你解决什么问题？
@@ -23,7 +25,7 @@
 
 ## 先体验一节小课
 
-**[下载「周长与面积」互动样例](https://github.com/pluoluo/learning-skills/releases/download/v0.1.2/perimeter-area-demo-v0.1.2.zip)**，解压后用浏览器打开 `index.html` 即可。体验样例无需安装开发工具、注册账号或配置模型。
+**[下载「周长与面积」互动样例](https://github.com/pluoluo/learning-skills/releases/download/v0.1.3/perimeter-area-demo-v0.1.3.zip)**，解压后可以用浏览器打开 `index.html`，也可以交给 Agent 临时托管，再用平板打开链接。直接打开样例无需安装开发工具、注册账号或配置模型。
 
 在这节课里，孩子可以：
 
@@ -35,19 +37,29 @@
 
 ## 用它制作你的小课
 
-你可以在桌面 Agent 中一边预览一边修改，也可以通过即时通信向 Hermes 等常驻 Agent 提出需求，再接收课程文件。Codex 等开发工具也可以使用同一份 Skill。
+制作和学习可以在不同设备上完成。家长通过熟悉的聊天或桌面 Agent 描述需求、预览和修改，孩子则优先使用平板横屏操作课件。
 
 | 使用方式 | 怎样使用成果 |
 |---|---|
-| 桌面 Agent | 让 Agent 提供课程文件；支持 HTML 交互预览时直接试用，再用对话提出修改 |
-| 即时通信中的常驻 Agent | 让 Agent 把课程作为附件交回当前聊天，下载后用浏览器打开 |
+| Hermes 等常驻 Agent | 让 Agent 在已有环境中临时托管课件，把局域网链接交回聊天；孩子用同一网络中的平板浏览器打开 |
+| 桌面 Agent | 家长预览、试用和修改；可交付课件文件，也可在环境支持时提供平板可访问的链接 |
 | CLI 或其他开发工具 | 让 Agent 将课程保存到工作目录，并说明打开哪个文件 |
 
 选择能加载 Skill、读写文件和运行脚本的 Agent 入口。构建工具需要 Agent 的执行环境提供 Node.js 20 或更高版本；环境检查和构建由 Agent 完成。具体预览与附件能力取决于你使用的应用和入口。普通聊天中上传说明文件是否足够，需要看该入口实际提供的工具。
 
-1. **[下载完整 Skill](https://github.com/pluoluo/learning-skills/releases/download/v0.1.2/interactive-topic-lesson-v0.1.2.zip)**，解压并保留整个 `interactive-topic-lesson` 文件夹。
+1. **[下载完整 Skill](https://github.com/pluoluo/learning-skills/releases/download/v0.1.3/interactive-topic-lesson-v0.1.3.zip)**，解压并保留整个 `interactive-topic-lesson` 文件夹。
 2. 按你的 Agent 的安装方式，将该文件夹放入技能目录。Hermes 用户可放到 `~/.hermes/skills/interactive-topic-lesson`，在新会话中使用 `/interactive-topic-lesson`。
-3. 按下面的方式描述需求，并请 Agent 在当前会话中提供可打开的课程。
+3. 按下面的方式描述需求，并告诉 Agent 孩子准备在平板上使用；需要局域网链接时一并说明。
+
+### 用平板打开常驻 Agent 生成的课件
+
+可以直接对 Hermes 说：
+
+> 请把这节课临时部署在你运行的机器上，给我一个同一局域网里的平板可以打开的地址。请说明地址多久有效、怎样停止服务，并保留课件文件方便以后再用。
+
+Agent 负责构建课件、启动临时服务并检查地址。平板与服务所在机器需要处于可互通的局域网；如果 Hermes 运行在 NAS 或容器中，可以使用已有端口映射或部署方式。链接通常只在服务运行期间有效。
+
+部署方式由 Agent 根据自己的环境选择，Skill 只约定交付边界：提供平板可访问的地址，只发布本次课件，说明服务的有效时间和停止方法，并保留可再次使用的课程文件。需要离线使用时，可以让 Agent 另外提供 HTML 或 ZIP 文件。
 
 ## 告诉 Agent 哪些信息？
 
@@ -68,7 +80,7 @@
 
 **先做一节试试：**
 
-> 使用 interactive-topic-lesson，给【年级或基础】的孩子做一节关于【主题】的互动小课。现在的困惑是【具体表现；不确定也可以说明】。请提供可以直接打开的课程；当前入口支持预览时请展示预览，否则把文件交给我。
+> 使用 interactive-topic-lesson，给【年级或基础】的孩子做一节关于【主题】的互动小课。现在的困惑是【具体表现；不确定也可以说明】。孩子主要在平板上操作。请提供课件；如果你的环境可以临时托管，请给我同一局域网中能打开的链接，并说明有效时间和停止方法。
 
 **围绕一个实际困难制作：**
 
@@ -87,7 +99,7 @@
 
 ## 你会得到什么？
 
-最主要的成果是一个 **`index.html` 互动课程文件**。用浏览器打开，就能让孩子操作、查看反馈并完成本次练习。
+最主要的成果是一节可以在平板浏览器中操作的互动课程。常驻 Agent 可以交付**临时局域网链接**，也可以提供 **`index.html` 文件**供下载保存。孩子打开后就能操作、查看反馈并完成本次练习。
 
 同时会保留可编辑的课程内容，方便继续调整、重新生成或交给学习应用使用。课程不依赖本项目的学习平台账号，当前独立版的操作和选择保留在本次页面中。
 
