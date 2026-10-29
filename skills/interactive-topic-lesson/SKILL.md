@@ -4,7 +4,7 @@ license: MIT
 description: Create a self-contained interactive learning lesson around a concrete learning difficulty, concept relationship, or curiosity. Produces a browser lesson plus a validated content package for host applications. Use for 互动专题、互动小课、知识点探索 and learning-by-doing activities; printable exam layout is a separate task.
 metadata:
   author: pluoluo
-  version: "0.1.1"
+  version: "0.1.2"
 ---
 
 # Interactive topic lesson
@@ -16,6 +16,8 @@ Requires file-writing tools and Node.js 20+ for validation and packaging. Browse
 ## Understand the learning need
 
 Accept a natural-language request; a textbook, wrong answer or diagnostic test is not a prerequisite. Retain what the user actually reported. Separate observations, interpretations and assumptions. An unspecified obstacle is a reason to offer a useful starting exploration, not to invent a diagnosis.
+
+Help the user supply useful context rather than expecting them to know the input contract. Establish the topic; invite grade or prior experience and the observed difficulty or learning intention. A concrete example, desired observable change, available time and interaction preferences are optional refinements. If something material is missing, ask a concise targeted question; otherwise proceed with stated assumptions. Do not make a worksheet, textbook, exact diagnosis, complete lesson plan, output path or technical configuration a prerequisite.
 
 Identify the recent learning scope and an observable goal. A learner who can calculate but misses relevant conditions needs an activity about finding and connecting conditions; restarting every definition may miss the request. Knowledge organization can compare relationships and limits rather than follow a remedial sequence. Ask only for information that would materially change the activity and cannot be reasonably assumed.
 
@@ -32,6 +34,8 @@ Generate formal check questions separately in content.test. Check answers and vi
 Keep the canvas independent of the standalone player's navigation and test UI. It can send the optional special-study messages described in the contract; it must still operate before any host response. Do not place formal answer keys, student identity, credentials, remote dependencies or database writes in the canvas.
 
 ## Validate, repair and deliver
+
+Choose delivery for the actual host capabilities using [references/agent-delivery.md](references/agent-delivery.md). Desktop agents are the primary interaction scenario; messaging agents are also important, and CLI remains supported. The agent handles tool execution and environment checks. Give the user an accessible course artifact and a clear next action rather than shell instructions or a remote machine's file path alone.
 
 From the installed skill directory, run:
 

@@ -9,7 +9,7 @@ The root contains:
 ```json
 {
   "format": "interactive-topic-lesson.v1",
-  "skillVersion": "0.1.1",
+  "skillVersion": "0.1.2",
   "title": "Lesson title",
   "subject": "math",
   "need": "The user's original learning need",
