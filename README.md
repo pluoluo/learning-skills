@@ -6,7 +6,7 @@
 
 **[DEMO样例预览](https://b.pluoluo.top/learning-skills/)**。关于“周长与面积”的主题，推荐用平板横屏体验，也可以在电脑浏览器中试用，无需下载或安装 Skill。
 
-![周长与面积互动小课预览](https://github.com/pluoluo/learning-skills/releases/download/v0.1.1/perimeter-area-preview.png)
+![周长与面积互动小课预览](https://github.com/pluoluo/learning-skills/releases/download/v0.1.4/perimeter-area-preview.png)
 
 ## 它能帮你解决什么问题？
 
@@ -36,7 +36,7 @@
 
 选择能加载 Skill、读写文件和运行脚本的 Agent 入口。构建工具需要 Agent 的执行环境提供 Node.js 20 或更高版本；环境检查和构建由 Agent 完成。具体预览与附件能力取决于你使用的应用和入口。普通聊天中上传说明文件是否足够，需要看该入口实际提供的工具。
 
-1. **[下载完整 Skill](https://github.com/pluoluo/learning-skills/releases/download/v0.1.3/interactive-topic-lesson-v0.1.3.zip)**，解压并保留整个 `interactive-topic-lesson` 文件夹。
+1. **[下载完整 Skill](https://github.com/pluoluo/learning-skills/releases/download/v0.1.4/interactive-topic-lesson-v0.1.4.zip)**，解压并保留整个 `interactive-topic-lesson` 文件夹。
 2. 按你的 Agent 的安装方式，将该文件夹放入技能目录。Hermes 用户可放到 `~/.hermes/skills/interactive-topic-lesson`，在新会话中使用 `/interactive-topic-lesson`。
 3. 按下面的方式描述需求，并告诉 Agent 孩子准备在平板上使用；需要局域网链接时一并说明。
 

@@ -9,7 +9,7 @@ The root contains:
 ```json
 {
   "format": "interactive-topic-lesson.v1",
-  "skillVersion": "0.1.3",
+  "skillVersion": "0.1.4",
   "title": "Lesson title",
   "subject": "math",
   "need": "The user's original learning need",
@@ -57,6 +57,8 @@ Canvas → parent: {channel: "special-study", type, payload}.
 Supported standalone messages: ready → context; resize with a finite number → clamped iframe height; complete → learned; submit with a complete question-ID/option-index map → result; return → exploration. The host also exposes its own exploration/test controls, so these messages are optional. When receiving, check event.source === parent and event.data.channel === "special-study". The parent validates event.source against the current iframe window.
 
 context includes learned, archived:false, preview:true, standalone:true, and test with prompts/options only. A submit result includes local score, passed, passScore and answer explanations, and explicitly has localOnly:true. No data is persisted. TTS/ASR requests receive an explicit unsupported error, so the canvas must retain a text/action path. See host-integration.md for the platform boundary.
+
+The standalone context also includes optional viewport:{width,height}: CSS pixels available to the learning canvas after host navigation and footer. The host sends a viewport message with the same payload when that space changes. A canvas may use this stable allocation to scale learning objects or establish a minimum workspace height. Continue reporting the actual naturally sized content root through resize, allowing longer content to scroll. Do not derive an ever-increasing root minimum from the auto-sized iframe's current height; the supplied allocation is independent of that feedback. Hosts that omit viewport remain compatible: retain a usable natural-content layout.
 
 ## Delivered files
 

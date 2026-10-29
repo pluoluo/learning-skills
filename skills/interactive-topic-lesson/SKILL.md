@@ -4,7 +4,7 @@ license: MIT
 description: Create a self-contained interactive learning lesson around a concrete learning difficulty, concept relationship, or curiosity. Produces a browser lesson plus a validated content package for host applications. Use for 互动专题、互动小课、知识点探索 and learning-by-doing activities; printable exam layout is a separate task.
 metadata:
   author: pluoluo
-  version: "0.1.3"
+  version: "0.1.4"
 ---
 
 # Interactive topic lesson
@@ -29,6 +29,8 @@ Before writing the page, record a concise design in lesson.json: original need, 
 
 Create complete inline HTML/CSS/classic JavaScript under content.canvas.html. The first screen must offer a meaningful topic-related action. Let learners change, compare, construct or express something, see its consequences and try again. Support hints, revisiting and stopping without forcing a sequence of perfect answers. Keep controls operable by touch and keyboard; provide a click alternative to dragging.
 
+Adapt to available width and height, not only width breakpoints. On larger views, enlarge or reorganize the actual learning objects and controls so the activity remains the focus rather than a small strip above unused space. Preserve geometric proportions, readable text and compact-screen access; avoid filling height with empty decoration. The standalone host supplies optional viewport dimensions (see contract.md); keep sizing feedback independent of the iframe's own expanding height.
+
 Generate formal check questions separately in content.test. Check answers and visual quantities independently of their labels. Cover the objectives and include a new example; a repeated demonstration is limited practice evidence. Retain uncertainty for open expression rather than manufacturing a correctness judgment.
 
 Keep the canvas independent of the standalone player's navigation and test UI. It can send the optional special-study messages described in the contract; it must still operate before any host response. Do not place formal answer keys, student identity, credentials, remote dependencies or database writes in the canvas.
@@ -47,6 +49,8 @@ node scripts/build.mjs /absolute/path/to/lesson.json --out /absolute/path/to/del
 Resolve scripts relative to this SKILL.md; do not assume the user is in the skill directory. Write results to the requested workspace, not into the installed skill. The builder refuses existing output files unless --force is supplied for an intended rebuild.
 
 Validation checks structure, references, classic script syntax and some dependency hazards. Its report does not establish teaching correctness or browser behavior. Review the actual content against teaching.md. If a browser is available, exercise the primary operation, a wrong attempt, a hint or reset, the new-example check and keyboard interaction at the requested sizes. The default shipped sizes are 1000×600 and 1920×1080 CSS pixels; adapt them when the user requests another context.
+
+Inspect the rendered composition as well as operation: meaningful use of screen height, actual diagram size, control reachability and overflow. Resize a live lesson in both directions and open/close support to catch retained heights or resize loops, while preserving learner input. Distinguish CSS viewport size from physical pixel density or browser zoom; record which was tested. Passing interaction tests alone is not a responsive-layout acceptance result.
 
 Repair specific failed checks while preserving completed work and the user's original need. Limit autonomous repair to two passes; if a material problem remains, deliver the draft and explain that problem instead of claiming the lesson is verified. A second model or reviewer is useful when available, but never claim independent review that did not happen.
 
