@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>互动专题</title>
+<style>
+:root{color-scheme:light;--page:#e8ecf5;--paper:#fffdf8;--ink:#1e293b;--muted:#475569;--line:#cbd5e1;--blue:#334db5;--orange:#b9471e;--radius:18px}
+*{box-sizing:border-box}body{margin:0;background:var(--page);color:var(--ink);font:18px/1.6 "PingFang SC","Microsoft YaHei",system-ui,sans-serif}button,input{font:inherit}button{min-height:44px;padding:8px 20px;cursor:pointer;border:1px solid var(--line);border-radius:12px;background:#fff;color:var(--ink);font-weight:700}button:focus-visible,input:focus-visible{outline:3px solid var(--blue);outline-offset:3px}button[aria-pressed="true"]{background:var(--blue);border-color:var(--blue);color:#fff}button:disabled{opacity:.6;cursor:wait}header{display:flex;align-items:center;justify-content:space-between;gap:24px;padding:14px 28px;background:var(--paper);border-bottom:1px solid var(--line)}h1{font-size:24px;line-height:1.25;margin:0}nav{display:flex;gap:10px;flex-shrink:0}#lesson-frame{display:block;width:100%;height:470px;border:0;background:var(--paper)}#quiz{padding:24px 32px}#quiz h2{font-size:26px;margin:0 0 6px}.muted{color:var(--muted);margin:4px 0 18px}#questions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px}fieldset{min-width:0;border:1px solid var(--line);border-radius:var(--radius);background:var(--paper);padding:18px;margin:0}legend{font-weight:750;padding:0 6px}.choice{display:flex;align-items:center;gap:12px;min-height:48px;padding:6px 10px;border-radius:10px;cursor:pointer}.choice:has(input:checked){background:#e5eaff}.choice input{width:20px;height:20px;accent-color:var(--blue)}.question-feedback{color:var(--muted);margin:12px 0 0}.question-feedback:empty{display:none}.quiz-actions{display:flex;gap:16px;align-items:center;flex-wrap:wrap;margin-top:22px}#check-test{background:var(--blue);color:#fff;border-color:var(--blue)}#result{font-weight:700;min-height:30px}footer{padding:16px 28px;color:var(--muted);font-size:14px;border-top:1px solid var(--line)}footer details{margin-top:4px}footer summary{cursor:pointer;min-height:28px}[hidden]{display:none!important}@media(max-width:750px){header{padding:12px 16px;gap:12px;flex-wrap:wrap}#questions{grid-template-columns:1fr}#quiz{padding:20px 16px}footer{padding:16px}h1{font-size:22px}}@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+<header><h1 id="lesson-title">互动专题</h1><nav aria-label="课程视图"><button type="button" id="explore-tab" aria-pressed="true">动手探索</button><button type="button" id="test-tab" aria-pressed="false">换个例子</button></nav></header>
+<main>
+<iframe id="lesson-frame" title="专题互动内容" sandbox="allow-scripts" referrerpolicy="no-referrer"></iframe>
+<section id="quiz" aria-labelledby="quiz-title" hidden><h2 id="quiz-title">换个例子，看看发现能不能用</h2><p class="muted">可以随时回到探索。本次核对只描述这几道题的表现。</p><div id="questions"></div><div class="quiz-actions"><button type="button" id="check-test">核对本次选择</button><button type="button" id="reset-test">重新尝试</button></div><p id="result" role="status" aria-live="polite"></p></section>
+</main>
+<footer><span>独立练习 · 本次操作和选择仅保留在当前页面。</span><details><summary>内容来源与适用基础</summary><p id="source-note"></p><p id="grade-note"></p></details></footer>
+<script>
+'use strict';
+/*__GRADING__*/
+const lesson = /*__LESSON__*/null;
+document.title = lesson.title + ' · 互动专题';
+document.getElementById('lesson-title').textContent = lesson.title;
+document.getElementById('source-note').textContent = lesson.sourceNote;
+document.getElementById('grade-note').textContent = lesson.gradeNote;
+const frame = document.getElementById('lesson-frame');
+const quiz = document.getElementById('quiz');
+const result = document.getElementById('result');
+const answers = Object.create(null);
+let learned = false;
+let graded = false;
+function send(type, payload) { frame.contentWindow?.postMessage({channel:'special-study',type,payload},'*'); }
+function context() { return {learned,archived:false,preview:true,standalone:true,test:{passScore:lesson.test.passScore,questions:publicQuestions(lesson.test.questions)}}; }
+function showTest(show) {
+  frame.hidden = show; quiz.hidden = !show;
+  document.getElementById('explore-tab').setAttribute('aria-pressed',String(!show));
+  document.getElementById('test-tab').setAttribute('aria-pressed',String(show));
+}
+function clearFeedback(message='') {
+  result.textContent = message; graded = false;
+  document.querySelectorAll('.question-feedback').forEach(element=>element.textContent='');
+}
+function renderResult(report) {
+  if (!report.ok) { result.textContent = report.error; return; }
+  graded = true;
+  const correct = report.details.filter(detail=>detail.correct).length;
+  result.textContent = `本次 ${correct}/${report.details.length} 题选择正确（${report.score} 分）。${report.passed ? '可以回看依据，也可以换一个问题继续探索。' : '回看解释，或回到探索再试一次。'}`;
+  for (const detail of report.details) document.getElementById('feedback-'+detail.id).textContent = `${detail.correct?'本次选择符合题意。':'可以再比较一下。'} ${detail.explanation}`;
+}
+for (const [index,question] of lesson.test.questions.entries()) {
+  const fieldset = document.createElement('fieldset');
+  const legend = document.createElement('legend');legend.textContent=`${index+1}. ${question.prompt}`;fieldset.append(legend);
+  for (const [optionIndex,option] of question.options.entries()) {
+    const label=document.createElement('label');label.className='choice';
+    const input=document.createElement('input');input.type='radio';input.name=question.id;input.value=String(optionIndex);
+    input.addEventListener('change',()=>{answers[question.id]=optionIndex;clearFeedback(graded?'已修改选择，请重新核对。':'');});
+    const span=document.createElement('span');span.textContent=option;label.append(input,span);fieldset.append(label);
+  }
+  const feedback=document.createElement('p');feedback.id='feedback-'+question.id;feedback.className='question-feedback';fieldset.append(feedback);document.getElementById('questions').append(fieldset);
+}
+document.getElementById('explore-tab').addEventListener('click',()=>showTest(false));
+document.getElementById('test-tab').addEventListener('click',()=>showTest(true));
+document.getElementById('check-test').addEventListener('click',()=>{
+  const report=gradeAnswers(lesson.test,answers);renderResult(report);
+  if(!report.ok){const missing=lesson.test.questions.find(question=>!Object.hasOwn(answers,question.id));if(missing)document.getElementsByName(missing.id)[0]?.focus();}
+});
+document.getElementById('reset-test').addEventListener('click',()=>{Object.keys(answers).forEach(key=>delete answers[key]);document.querySelectorAll('input[type=radio]').forEach(input=>input.checked=false);clearFeedback('已清除本次选择，可以重新尝试。');});
+window.addEventListener('message',event=>{
+  if(event.source!==frame.contentWindow||!event.data||event.data.channel!=='special-study')return;
+  const {type,payload}=event.data;
+  if(type==='ready')send('context',context());
+  if(type==='resize'&&typeof payload==='number'&&Number.isFinite(payload))frame.style.height=Math.max(160,Math.min(4000,Math.ceil(payload)))+'px';
+  if(type==='complete'){learned=true;send('learned',{learned:true,localOnly:true});}
+  if(type==='submit'){const report=gradeAnswers(lesson.test,payload);send(report.ok?'result':'error',report.ok?report:{message:report.error});}
+  if(type==='return')showTest(false);
+  if(type==='tts'||type==='asr')send(type+'-error',{id:payload?.id,message:'独立版未接入语音服务，请使用文字与操作。'});
+});
+frame.addEventListener('load',()=>send('context',context()));
+frame.srcdoc=lesson.html;
+</script>
+</body>
+</html>

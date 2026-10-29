@@ -1,0 +1,95 @@
+{
+  "format": "interactive-topic-lesson.v1",
+  "skillVersion": "0.1.0",
+  "title": "周长与面积：围一圈，还是铺满？",
+  "subject": "math",
+  "need": "原创示例需求：四年级学习者容易把周长与面积混用，希望通过改变长方形和比较同样长的围栏，观察两种量各自表示什么。",
+  "assumptions": [
+    "示例假设学习者接触过整数乘法、长方形和米；这些前置未经过真实学生观察。",
+    "这是原创教学演示，未使用任何家庭的学习记录，也不声称对齐某版教材。"
+  ],
+  "objectives": [
+    {
+      "id": "o1",
+      "goal": "能分别指认边界长度与覆盖大小，并用米、平方米解释当前长方形。",
+      "interaction": "切换围栏与草地，改变长宽，观察四边和单位方格。",
+      "misconception": "可能把边界长度和覆盖大小混为一种量；这是示例假设，不是诊断。",
+      "feedback": "反馈由当前长宽计算，明确数的是四条边还是单位方格，可随时重置。",
+      "testIds": [
+        "q1",
+        "q4"
+      ]
+    },
+    {
+      "id": "o2",
+      "goal": "能用具体反例说明周长与面积表示不同的量，不能因一种量相同就断定另一种也相同。",
+      "interaction": "在长宽和为8的约束下改变A，与固定4×4的B用同一单位方格比较。",
+      "misconception": "可能认为围栏长度相同就能铺同样多的草地。",
+      "feedback": "核对眼前两块的判断，显示相同周长和各自格数，允许回到相同形状再比较。",
+      "testIds": [
+        "q2",
+        "q3"
+      ]
+    }
+  ],
+  "content": {
+    "schemaVersion": 2,
+    "layout": "canvas",
+    "sourceNote": "原创补充专题：基于长方形边界与单位方格设计，需家长核对并观察学习效果；未引用指定教材。",
+    "gradeNote": "适合已接触整数乘法、米和长方形的三至五年级学习者；年级仅作参考。",
+    "introduction": "改变长方形的边长，比较围一圈的长度与铺满的大小，再用新例子检查发现。",
+    "sections": [],
+    "canvas": {
+      "html": "<!doctype html>\n<html lang=\"zh-CN\">\n<head>\n<meta charset=\"utf-8\">\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n<style>\n:root{color-scheme:light;--paper:#fffdf8;--ink:#1e293b;--muted:#475569;--line:#cbd5e1;--blue:#334db5;--blue-fill:#dbe4ff;--orange:#b9471e;--green:#17634a}\n*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:18px/1.6 \"PingFang SC\",\"Microsoft YaHei\",system-ui,sans-serif}main{padding:20px 28px 24px}h2{font-size:26px;line-height:1.25;margin:0 0 8px}p{margin:6px 0 12px}.intro{display:flex;align-items:flex-start;justify-content:space-between;gap:24px}.intro p{color:var(--muted)}.steps{display:flex;gap:10px;flex-shrink:0}.workspace{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(300px,.8fr);gap:28px;align-items:center}.drawing{margin:0;background:#f0f4fc;border-radius:18px;padding:10px 16px 14px}.drawing svg{display:block;width:100%;height:270px}.drawing figcaption{text-align:center;color:var(--muted);font-size:16px}.controls{display:grid;gap:14px}button,input{font:inherit}button{min-height:44px;padding:8px 16px;border:1px solid var(--line);border-radius:12px;background:#fff;color:var(--ink);font-weight:700;cursor:pointer}button[aria-pressed=\"true\"]{background:var(--blue);color:#fff;border-color:var(--blue)}button:focus-visible,input:focus-visible,summary:focus-visible{outline:3px solid var(--blue);outline-offset:3px}.measure-choice{display:flex;gap:10px;flex-wrap:wrap}.dimensions{display:grid;grid-template-columns:1fr 1fr;gap:16px}.slider-label{display:flex;justify-content:space-between;font-weight:700}.slider-label output{color:var(--blue)}input[type=\"range\"]{width:100%;height:44px;margin:0;accent-color:var(--blue);cursor:pointer}.feedback{min-height:78px;border-left:4px solid var(--blue);padding:10px 14px;background:#edf1ff;border-radius:0 12px 12px 0}details{font-size:16px;color:var(--muted)}summary{cursor:pointer;min-height:36px}.compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.compare-grid svg{height:220px}.compare-grid figcaption{font-weight:700;color:var(--ink)}.small{font-size:15px;color:var(--muted)}[hidden]{display:none!important}@media(max-width:750px){main{padding:18px 16px}.intro{display:block}.steps{margin:12px 0;flex-wrap:wrap}.workspace{grid-template-columns:1fr}.drawing svg{height:240px}h2{font-size:23px}.compare-grid svg{height:170px}}@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}\n</style>\n</head>\n<body>\n<main data-study-root>\n<div class=\"intro\"><div><h2>同一块花园，两种量法</h2><p>动一动边长，看看围栏和草地分别怎样变化。</p></div><div class=\"steps\" role=\"group\" aria-label=\"选择探索问题\"><button type=\"button\" id=\"first-step\" aria-pressed=\"true\">围一圈 · 铺满</button><button type=\"button\" id=\"second-step\" aria-pressed=\"false\">周长一样，会怎样？</button></div></div>\n<section id=\"first-scene\" data-learning-objective=\"o1\" aria-label=\"区分周长和面积\">\n<div class=\"workspace\">\n<figure class=\"drawing\"><svg id=\"garden\" viewBox=\"0 0 540 280\" role=\"img\" aria-label=\"可改变长和宽的方格花园\"></svg><figcaption>每个小方格边长 1 米，面积 1 平方米。</figcaption></figure>\n<div class=\"controls\">\n<div class=\"measure-choice\" role=\"group\" aria-label=\"选择观察对象\"><button type=\"button\" id=\"perimeter-mode\" aria-pressed=\"true\">看围栏：围一圈</button><button type=\"button\" id=\"area-mode\" aria-pressed=\"false\">看草地：铺满</button></div>\n<div class=\"dimensions\"><div><label class=\"slider-label\" for=\"garden-width\">长 <output id=\"width-value\">6 米</output></label><input type=\"range\" id=\"garden-width\" min=\"2\" max=\"8\" value=\"6\" step=\"1\"></div>\n<div><label class=\"slider-label\" for=\"garden-height\">宽 <output id=\"height-value\">3 米</output></label><input type=\"range\" id=\"garden-height\" min=\"2\" max=\"5\" value=\"3\" step=\"1\"></div></div>\n<p class=\"feedback\" id=\"garden-feedback\" data-feedback aria-live=\"polite\"></p>\n<details><summary>需要时，看看怎样数</summary><p>围栏是四条边合起来的长度，单位是米。草地是能铺满的小方格数量，单位是平方米。</p></details>\n<button type=\"button\" id=\"reset-garden\">恢复这块花园</button>\n</div></div>\n</section>\n<section id=\"second-scene\" data-learning-objective=\"o2\" aria-label=\"比较相同周长下的面积\" hidden>\n<div class=\"workspace\">\n<div class=\"compare-grid\"><figure class=\"drawing\"><svg id=\"garden-a\" viewBox=\"0 0 300 260\" role=\"img\" aria-label=\"花园A，边长可以改变\"></svg><figcaption id=\"caption-a\"></figcaption></figure><figure class=\"drawing\"><svg id=\"garden-b\" viewBox=\"0 0 300 260\" role=\"img\" aria-label=\"花园B，长宽都是4米\"></svg><figcaption>花园 B · 4 米 × 4 米</figcaption></figure></div>\n<div class=\"controls\">\n<h3 style=\"font-size:22px;margin:0\">围栏都长 16 米，草地呢？</h3>\n<div><label class=\"slider-label\" for=\"compare-width\">改变花园 A 的长 <output id=\"compare-value\">6 米</output></label><input type=\"range\" id=\"compare-width\" min=\"1\" max=\"7\" value=\"6\" step=\"1\"></div>\n\n<div class=\"measure-choice\" role=\"group\" aria-label=\"判断眼前两块草地的面积\"><button type=\"button\" id=\"predict-same\">眼前面积一样</button><button type=\"button\" id=\"predict-different\">眼前面积不同</button></div>\n<p class=\"feedback\" id=\"compare-feedback\" data-feedback aria-live=\"polite\"></p>\n<details><summary>给一点观察线索</summary><p>A 的长与宽合起来始终是 8 米，B 保持不变。比较每行几格、共有几行；围一圈不变，铺满的格数却会变化。</p></details>\n\n</div></div>\n</section>\n</main>\n<script>\n'use strict';\nconst byId = function(id) { return document.getElementById(id); };\nlet measure = 'perimeter';\nfunction rectangle(svg,width,height,mode,unit) {\n  const box = svg.viewBox.baseVal;\n  const cell = unit || Math.min(44,400/width,195/height);\n  const left = (box.width-width*cell)/2;\n  const top = (box.height-height*cell)/2;\n  let cells = '';\n  for(let row=0;row<height;row++)for(let col=0;col<width;col++)cells+='<rect x=\"'+(left+col*cell)+'\" y=\"'+(top+row*cell)+'\" width=\"'+cell+'\" height=\"'+cell+'\" fill=\"'+(mode==='area'?'#dbe4ff':'#fffdf8')+'\" stroke=\"#93a4c3\" stroke-width=\"1\"/>';\n  svg.innerHTML = cells+'<rect data-outline x=\"'+left+'\" y=\"'+top+'\" width=\"'+(width*cell)+'\" height=\"'+(height*cell)+'\" fill=\"none\" stroke=\"'+(mode==='perimeter'?'#b9471e':'#334db5')+'\" stroke-width=\"'+(mode==='perimeter'?5:2)+'\"/><text x=\"'+(box.width/2)+'\" y=\"'+(top+height*cell+26)+'\" text-anchor=\"middle\" fill=\"#1e293b\" font-size=\"17\">'+width+' 米</text><text x=\"'+(left-12)+'\" y=\"'+(box.height/2+6)+'\" text-anchor=\"end\" fill=\"#1e293b\" font-size=\"17\">'+height+' 米</text>';\n  svg.dataset.width=String(width);svg.dataset.height=String(height);svg.dataset.cell=String(cell);\n}\nfunction renderGarden() {\n  const width=Number(byId('garden-width').value),height=Number(byId('garden-height').value);\n  byId('width-value').textContent=width+' 米';byId('height-value').textContent=height+' 米';\n  rectangle(byId('garden'),width,height,measure);\n  const perimeter=2*(width+height),area=width*height;\n  byId('garden-feedback').textContent=measure==='perimeter'?'围栏沿四条边走一圈：'+width+' + '+height+' + '+width+' + '+height+' = '+perimeter+' 米。它量的是边界长度。':'草地每行 '+width+' 格，共 '+height+' 行：'+width+' × '+height+' = '+area+' 平方米。它量的是铺满的大小。';\n  byId('perimeter-mode').setAttribute('aria-pressed',String(measure==='perimeter'));byId('area-mode').setAttribute('aria-pressed',String(measure==='area'));\n}\nfunction renderCompare(prediction) {\n  const width=Number(byId('compare-width').value),height=8-width,area=width*height;\n  byId('compare-value').textContent=width+' 米';byId('caption-a').textContent='花园 A · '+width+' 米 × '+height+' 米';\n  rectangle(byId('garden-a'),width,height,'area',27);rectangle(byId('garden-b'),4,4,'area',27);\n  const equal=area===16;\n  const response=prediction===undefined?'先比较眼前两块。':prediction===equal?'本次判断符合眼前图形。':'再数一数两块草地。';\n  byId('compare-feedback').textContent=response+' A 是 '+area+' 平方米，B 是 16 平方米；周长都是 16 米。'+(equal?'此时形状也相同，试试另一种。':'周长相同，面积可以不同。');\n  byId('compare-feedback').dataset.equal=String(equal);\n}\nfunction scene(second) {\n  byId('first-scene').hidden=second;byId('second-scene').hidden=!second;\n  byId('first-step').setAttribute('aria-pressed',String(!second));byId('second-step').setAttribute('aria-pressed',String(second));\n}\nbyId('garden-width').addEventListener('input',renderGarden);byId('garden-height').addEventListener('input',renderGarden);\nbyId('perimeter-mode').addEventListener('click',function(){measure='perimeter';renderGarden();});\nbyId('area-mode').addEventListener('click',function(){measure='area';renderGarden();});\nbyId('reset-garden').addEventListener('click',function(){byId('garden-width').value='6';byId('garden-height').value='3';measure='perimeter';renderGarden();});\nbyId('compare-width').addEventListener('input',function(){renderCompare();});\nbyId('predict-same').addEventListener('click',function(){renderCompare(true);});\nbyId('predict-different').addEventListener('click',function(){renderCompare(false);});\nbyId('first-step').addEventListener('click',function(){scene(false);});\nbyId('second-step').addEventListener('click',function(){scene(true);});\nrenderGarden();renderCompare();\nconst root=document.querySelector('[data-study-root]');\nfunction size(){if(parent!==window)parent.postMessage({channel:'special-study',type:'resize',payload:Math.ceil(root.getBoundingClientRect().height)},'*');}\nif(typeof ResizeObserver!=='undefined')new ResizeObserver(size).observe(root);\nwindow.addEventListener('load',size);\n</script>\n</body></html>"
+    },
+    "test": {
+      "passScore": 75,
+      "questions": [
+        {
+          "id": "q1",
+          "prompt": "一块长7米、宽2米的长方形花圃，围一圈要多长的围栏？",
+          "options": [
+            "14米",
+            "18米",
+            "18平方米"
+          ],
+          "answer": 1,
+          "explanation": "围一圈是四条边的总长：(7＋2)×2＝18米。14平方米表示铺满的面积。"
+        },
+        {
+          "id": "q2",
+          "prompt": "A长5米宽3米，B长4米宽4米。两块都用16米围栏，哪块草地面积更大？",
+          "options": [
+            "A更大",
+            "一样大",
+            "B更大"
+          ],
+          "answer": 2,
+          "explanation": "A有5×3＝15平方米，B有4×4＝16平方米。周长相同，面积可以不同。"
+        },
+        {
+          "id": "q3",
+          "prompt": "A长6米宽2米，B长4米宽3米。两块面积都是12平方米，哪块需要的围栏更长？",
+          "options": [
+            "A更长",
+            "一样长",
+            "B更长"
+          ],
+          "answer": 0,
+          "explanation": "A周长为(6＋2)×2＝16米，B为(4＋3)×2＝14米。面积相同也不保证周长相同。"
+        },
+        {
+          "id": "q4",
+          "prompt": "一块3米×3米的花圃，把长改为5米，宽不变。围栏和草地分别增加多少？",
+          "options": [
+            "围栏增加6米，草地增加4平方米",
+            "围栏增加4米，草地增加6平方米",
+            "围栏和草地都增加2"
+          ],
+          "answer": 1,
+          "explanation": "周长从12米变16米，增加4米；面积从9平方米变15平方米，增加6平方米。长度与面积使用不同单位。"
+        }
+      ]
+    }
+  }
+}

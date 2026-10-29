@@ -1,0 +1,4 @@
+interface:
+  display_name: "互动专题小课"
+  short_description: "把具体学习困难转成可操作、有反馈、可独立打开的互动小课与平台内容包"
+  default_prompt: "使用 $interactive-topic-lesson，把孩子正在遇到的一个学习困难做成可独立打开、带操作反馈与新例验证的互动小课。"
