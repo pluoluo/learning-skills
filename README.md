@@ -25,7 +25,7 @@
 
 ## 先体验一节小课
 
-**[直接打开「周长与面积」在线小课](https://pluoluo.github.io/learning-skills/)**。推荐用平板横屏体验，也可以在电脑浏览器中试用，无需下载或安装 Skill。
+**[直接打开「周长与面积」在线小课](https://b.pluoluo.top/learning-skills/)**。推荐用平板横屏体验，也可以在电脑浏览器中试用，无需下载或安装 Skill。
 
 **[下载「周长与面积」互动样例](https://github.com/pluoluo/learning-skills/releases/download/v0.1.3/perimeter-area-demo-v0.1.3.zip)**，解压后可以用浏览器打开 `index.html`，也可以交给 Agent 临时托管，再用平板打开链接。直接打开样例无需安装开发工具、注册账号或配置模型。
 
