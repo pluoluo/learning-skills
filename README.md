@@ -4,9 +4,7 @@
 
 这里提供供各类 AI Agent 使用的学习 Skill。你在熟悉的 Agent 中描述一个问题，让它制作互动课程，带孩子通过操作、比较、尝试和反馈理解知识，再换一个例子看看能不能用上。
 
-目前提供 **[互动专题小课 · interactive-topic-lesson](skills/interactive-topic-lesson/SKILL.md)**。
-
-推荐的使用方式是：**家长向 Agent 提需求 → Agent 生成并交付课件 → 孩子在平板浏览器中动手探索。** Hermes 等常驻 Agent 可以利用已有部署环境，临时托管课件，方便家里的平板通过局域网链接打开。
+**[DEMO样例预览](https://b.pluoluo.top/learning-skills/)**。关于“周长与面积”的主题，推荐用平板横屏体验，也可以在电脑浏览器中试用，无需下载或安装 Skill。
 
 ![周长与面积互动小课预览](https://github.com/pluoluo/learning-skills/releases/download/v0.1.1/perimeter-area-preview.png)
 
@@ -23,23 +21,12 @@
 
 可以围绕数学、语文、英语中的具体问题创作。你不必先写完整教案，也不必准备一套教材；一个清楚的困惑就可以作为起点。
 
-## 先体验一节小课
-
-**[直接打开「周长与面积」在线小课](https://b.pluoluo.top/learning-skills/)**。推荐用平板横屏体验，也可以在电脑浏览器中试用，无需下载或安装 Skill。
-
-**[下载「周长与面积」互动样例](https://github.com/pluoluo/learning-skills/releases/download/v0.1.3/perimeter-area-demo-v0.1.3.zip)**，解压后可以用浏览器打开 `index.html`，也可以交给 Agent 临时托管，再用平板打开链接。直接打开样例无需安装开发工具、注册账号或配置模型。
-
-在这节课里，孩子可以：
-
-1. 改变长方形的长与宽，切换观察“围一圈”和“铺满”。
-2. 用同样长的围栏围出不同形状，比较草地面积。
-3. 随时查看提示、回到探索，再用新例子核对自己的发现。
-
-你也可以先看看 **[Skill 的完整说明](skills/interactive-topic-lesson/SKILL.md)**，了解它如何组织一节课。
 
 ## 用它制作你的小课
 
 制作和学习可以在不同设备上完成。家长通过熟悉的聊天或桌面 Agent 描述需求、预览和修改，孩子则优先使用平板横屏操作课件。
+
+推荐的使用方式是：**家长向 Agent 提需求 → Agent 生成并交付课件 → 孩子在平板浏览器中动手探索。** Hermes 等常驻 Agent 可以利用已有部署环境，临时托管课件，方便家里的平板通过局域网链接打开。
 
 | 使用方式 | 怎样使用成果 |
 |---|---|
