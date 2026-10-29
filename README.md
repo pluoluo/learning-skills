@@ -4,7 +4,7 @@
 
 [DEMO 样例预览](https://b.pluoluo.top/learning-skills/)：以“周长与面积”为例，推荐平板横屏体验，也可以电脑浏览器打开，无需下载或安装 Skill。
 
-![周长与面积互动小课预览](https://github.com/pluoluo/learning-skills/releases/download/v0.1.4/perimeter-area-preview.png)
+![周长与面积互动小课预览](https://github.com/pluoluo/learning-skills/releases/download/v0.1.4/perimeter-area-preview-visible.png)
 
 ## 这是什么？
 
