@@ -1,6 +1,6 @@
 {
   "name": "learning-skills",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "private": true,
   "type": "module",
   "description": "Portable teaching skills and interactive learning artifacts for AI agents",
@@ -15,5 +15,6 @@
   },
   "devDependencies": {
     "@playwright/test": "^1.64.1"
-  }
+  },
+  "license": "MIT"
 }

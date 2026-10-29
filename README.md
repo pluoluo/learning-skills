@@ -4,9 +4,9 @@
 
 Portable teaching skills for AI agents. Generate an interactive lesson that opens in a browser, together with an editable content package a learning application can validate and consume.
 
-首个 Skill 是 **[interactive-topic-lesson](skills/interactive-topic-lesson/SKILL.md)**。当前为 `0.1.0` 首版，支持数学、语文、英语的专题创作；随仓库提供的完整原创样例是“周长与面积”。通用创作能力仍需更多宿主与真实用户试用，已有样例不代表所有学科的生成质量都经过验证。
+首个 Skill 是 **[interactive-topic-lesson](skills/interactive-topic-lesson/SKILL.md)**。当前为 `0.1.1` 首版，支持数学、语文、英语的专题创作；随仓库提供的完整原创样例是“周长与面积”。通用创作能力仍需更多宿主与真实用户试用，已有样例不代表所有学科的生成质量都经过验证。
 
-![周长与面积独立课程预览](https://github.com/pluoluo/learning-skills/releases/download/v0.1.0/perimeter-area-preview.png)
+![周长与面积独立课程预览](https://github.com/pluoluo/learning-skills/releases/download/v0.1.1/perimeter-area-preview.png)
 
 ## 先体验一个完整样例
 
@@ -21,8 +21,8 @@ npm run example:build
 
 用浏览器打开 `dist/perimeter-area/index.html` 即可。也可以从仓库的 Releases 下载已经打包的样例，再打开其中的 `index.html`。
 
-- [下载可直接打开的周长与面积样例](https://github.com/pluoluo/learning-skills/releases/download/v0.1.0/perimeter-area-demo-v0.1.0.zip)
-- [下载完整 Skill 文件夹](https://github.com/pluoluo/learning-skills/releases/download/v0.1.0/interactive-topic-lesson-v0.1.0.zip)
+- [下载可直接打开的周长与面积样例](https://github.com/pluoluo/learning-skills/releases/download/v0.1.1/perimeter-area-demo-v0.1.1.zip)
+- [下载完整 Skill 文件夹](https://github.com/pluoluo/learning-skills/releases/download/v0.1.1/interactive-topic-lesson-v0.1.1.zip)
 
 孩子可以改变长方形的长与宽，切换“围一圈”和“铺满”，再用固定长度的围栏构造不同面积，最后换新例子核对。操作、提示、返回探索和本次测试均可独立运行。当前页面只保留本次输入，不建立学生档案，也不把一次得分解释为已经掌握。
 
@@ -46,6 +46,7 @@ Skill 会组织需求、设计、制作与核对。模型由宿主提供，仓�
 | `lesson.json` | 原始需求、假设、教学目标和完整可编辑内容 |
 | `special-study.json` | 可交给宿主服务端校验的 v2 画布内容与测试 |
 | `validation.json` | 内容摘要和实际执行过的静态检查，明确未运行的验证 |
+| `LICENSE` | 随复用运行外壳分发的 MIT 许可证，网页内部也保留完整声明 |
 
 输入输出协议和限制见 [contract.md](skills/interactive-topic-lesson/references/contract.md)，教学核对标准见 [teaching.md](skills/interactive-topic-lesson/references/teaching.md)。
 
@@ -77,4 +78,6 @@ node skills/interactive-topic-lesson/scripts/build.mjs /path/to/lesson.json --ou
 
 ## 许可证
 
-许可证尚未选定，当前公开版本未附加开源许可条款。
+本仓库的原创 Skill、脚本、模板和随仓库发布的原创样例采用 **[MIT License](LICENSE)**，版权声明为 `Copyright (c) 2026 pluoluo`。允许使用、修改、分发和商用，复制或分发相关软件时需保留许可证要求的声明。
+
+独立 Skill 文件夹内也附带许可证。构建出的网页内嵌运行外壳的完整 MIT 声明，并同时输出 `LICENSE`，便于单文件分享时保留声明。用户新创作的课程内容及提供的教材、插图等材料，仍按各自的权利和授权处理。

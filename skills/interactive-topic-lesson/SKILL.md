@@ -1,9 +1,10 @@
 ---
 name: interactive-topic-lesson
+license: MIT
 description: Create a self-contained interactive learning lesson around a concrete learning difficulty, concept relationship, or curiosity. Produces a browser lesson plus a validated content package for host applications. Use for 互动专题、互动小课、知识点探索 and learning-by-doing activities; printable exam layout is a separate task.
 metadata:
   author: pluoluo
-  version: "0.1.0"
+  version: "0.1.1"
 ---
 
 # Interactive topic lesson
@@ -45,4 +46,4 @@ Validation checks structure, references, classic script syntax and some dependen
 
 Repair specific failed checks while preserving completed work and the user's original need. Limit autonomous repair to two passes; if a material problem remains, deliver the draft and explain that problem instead of claiming the lesson is verified. A second model or reviewer is useful when available, but never claim independent review that did not happen.
 
-Deliver index.html for direct opening, lesson.json for editable design and content, special-study.json for host consumption, and validation.json for the performed static checks. Describe what was actually verified and any remaining review. Local practice scores describe this attempt only; they are not a mastery diagnosis or an authoritative host record.
+Deliver index.html for direct opening, lesson.json for editable design and content, special-study.json for host consumption, validation.json for the performed static checks, and LICENSE for the reused MIT-licensed player. Keep its embedded notice when sharing the standalone HTML. The user's new lesson content and supplied materials retain their respective rights. Describe what was actually verified and any remaining review. Local practice scores describe this attempt only; they are not a mastery diagnosis or an authoritative host record.

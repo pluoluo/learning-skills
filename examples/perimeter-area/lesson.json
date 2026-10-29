@@ -1,6 +1,6 @@
 {
   "format": "interactive-topic-lesson.v1",
-  "skillVersion": "0.1.0",
+  "skillVersion": "0.1.1",
   "title": "周长与面积：围一圈，还是铺满？",
   "subject": "math",
   "need": "原创示例需求：四年级学习者容易把周长与面积混用，希望通过改变长方形和比较同样长的围栏，观察两种量各自表示什么。",

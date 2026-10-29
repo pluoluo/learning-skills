@@ -63,9 +63,13 @@ test('artifact packaging is reproducible, isolates the canvas, and refuses accid
   try {
     const a = path.join(temporary, 'a'), b = path.join(temporary, 'b');
     await buildLesson(example, a); await buildLesson(example, b);
-    for (const file of ['index.html', 'lesson.json', 'special-study.json', 'validation.json']) assert.equal(await readFile(path.join(a, file), 'utf8'), await readFile(path.join(b, file), 'utf8'));
+    for (const file of ['index.html', 'lesson.json', 'special-study.json', 'validation.json', 'LICENSE']) assert.equal(await readFile(path.join(a, file), 'utf8'), await readFile(path.join(b, file), 'utf8'));
     assert.deepEqual(JSON.parse(await readFile(path.join(a, 'special-study.json'), 'utf8')), example.content);
     const html = await readFile(path.join(a, 'index.html'), 'utf8');
+    const license = await readFile(new URL('../LICENSE', import.meta.url), 'utf8');
+    assert.equal(await readFile(new URL('../skills/interactive-topic-lesson/LICENSE', import.meta.url), 'utf8'), license);
+    assert.equal(await readFile(path.join(a, 'LICENSE'), 'utf8'), license);
+    assert(html.includes(license), 'Sharing only index.html must preserve the full player license');
     assert(html.includes('sandbox="allow-scripts"'));
     assert(!html.includes('sandbox="allow-scripts allow-same-origin"'));
     assert(html.includes("connect-src 'none'"));

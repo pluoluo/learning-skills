@@ -9,7 +9,7 @@ The root contains:
 ```json
 {
   "format": "interactive-topic-lesson.v1",
-  "skillVersion": "0.1.0",
+  "skillVersion": "0.1.1",
   "title": "Lesson title",
   "subject": "math",
   "need": "The user's original learning need",
@@ -64,3 +64,4 @@ context includes learned, archived:false, preview:true, standalone:true, and tes
 - lesson.json: editable complete artifact including the design and formal keys. It contains no learner identity or personal history.
 - special-study.json: content only, for a host's server-side parser and human review. Do not expose it as a student API response.
 - validation.json: artifact digest, actual static check results and limits of that validation. Rebuilding is deterministic for the same input.
+- LICENSE: the MIT license for the reused standalone player; index.html also embeds the complete notice. New lesson content and user-provided materials retain their respective rights.
