@@ -33,17 +33,17 @@
 
 ### 1. 让 Agent 安装 Skill
 
-不用自己下载压缩包、解压、找目录。把 Skill 链接发给你的 Agent，让它自己安装。
-
-完整 Skill 下载地址：
-
-https://github.com/pluoluo/learning-skills/releases/download/v0.1.4/interactive-topic-lesson-v0.1.4.zip
-
+- 把 Skill 链接发给你的 Agent，让它自己安装。
 可以直接对 Agent 说：
 
 ```
 请安装这个 skill：https://github.com/pluoluo/learning-skills。装好后告诉我怎么在新会话里调用它，以及需要我补充哪些信息。
 ```
+
+- 完整 Skill 下载地址：
+
+https://github.com/pluoluo/learning-skills/releases/download/v0.1.4/interactive-topic-lesson-v0.1.4.zip
+
 
 你的 Agent 需要能加载 Skill、读写文件、运行脚本。构建工具需要 Node.js 20 或更高版本，环境检查和构建交给 Agent 完成即可。
 
