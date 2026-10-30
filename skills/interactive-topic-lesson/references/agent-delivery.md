@@ -1,48 +1,44 @@
-# Delivery across agent environments
+# Agent-owned delivery and revision
 
-Use the same teaching workflow, contract and build tools across hosts. Adapt discovery and delivery to actual capabilities, not a product name or an assumption that every user has a terminal. No host-specific teaching fork is needed.
+The finished parent-facing result is one HTTP(S) lesson URL. Default to local deployment on a computer in the learner's LAN, reachable by a tablet on that same network. Parents describe changes in conversation; the agent edits, checks and updates the lesson. Do not ask parents to repeat this default in their prompt, edit files, run commands, choose ports or administer a service. Source files and reports are agent-maintained records, not the delivery interface.
 
-## Tablet learning through a persistent agent
+## Select a real route early
 
-The authoring device and learner device are different roles. Prefer a landscape tablet browser for the child's touch interactions; use desktop previews for adult review and editing. For a request to make the lesson available on a tablet or LAN, an agent with a suitable deployment environment can temporarily serve the built output and return a link in the originating conversation. Downloadable HTML/ZIP remains useful for offline access.
+Inspect the actual environment for a deployment computer or managed service on the learner's LAN. Reuse a suitable local course service where available, preserving its access controls; otherwise use the bundled Node host on the actual LAN interface. A remote authoring agent needs access to such a deployment machine: its localhost or private IP may be on a different network. Do not replace local LAN delivery with public/cloud hosting unless the user requests that mode, and do not infer LAN access from an agent product name.
 
-### Delivery boundaries
+Use the requested network scope. A request for a URL authorizes ordinary hosting within that scope and existing authorized hosting; it does not by itself authorize making private content public, opening firewall ports, creating tunnels or changing unrelated services. Missing route information matters: ask a targeted question while continuing authoring. If hosting is unavailable, retain the private build and report URL delivery as blocked. An offline file is an alternative only when explicitly requested.
 
-Choose the service, process management, port and hosting mechanism from the actual agent environment. Reuse existing deployment capabilities when appropriate; this Skill does not prescribe a server implementation or bundle a hosting service.
+## Public page, private workspace
 
-- Provide a working lesson URL intended for the learner's tablet on the reachable LAN. localhost, 127.0.0.1 and a remote server's file path are not tablet delivery addresses.
-- Publish only the intended course content. Keep private source materials, user context, credentials and unrelated agent directories outside the served scope.
-- Preserve existing services and stay within the requested network scope. Public hosting, tunnels or unrelated network changes require their own authorization.
-- State how long the service will remain available, whether it stops automatically, and how this specific service can be stopped. Keep the lesson files for future use and avoid interrupting an active learning session during revisions.
-- Verify that the service responds and report what was actually checked. A host-side probe does not establish that a physical tablet can connect; verify or resolve the learner's network access when needed.
-- Return the actual URL and instructions in the originating conversation. If hosting cannot be completed, explain the specific limitation and offer the preserved file or attachment rather than inventing a reachable link.
+Keep author/lesson.source.json and its canvas.html, private compiled artifacts, review.json and delivery.json outside the served scope. Only index.html is learner-facing. Never serve the whole author or build directory. Standalone index.html necessarily contains its local practice key; it is not an authoritative assessment. A platform keeps formal keys server-side instead.
 
-## Desktop agents
+## Optional temporary Node host
 
-When native Skill discovery is available, use it; otherwise follow the host's documented loading mechanism. Check access to the skill's complete resources, file creation, Node.js and optional browser preview. Run scripts in the host execution environment; do not instruct a nontechnical user to prepare a development project by default. If a required tool is missing, explain the specific requirement and available path without claiming a build or check succeeded.
+When no suitable service exists, the bundled dependency-free host serves exactly one built page. Run it with the environment's process manager or persistent tool session; it does not daemonize or assume a shell, OS, fixed path, IP or port:
 
-Deliver a clickable local file, a native file attachment or a downloadable artifact according to the current host. When interactive HTML previews are available, offer one and retain a downloadable standalone file. A preview's restrictions may differ from a browser; if it blocks the lesson's iframe or scripts, use the standalone file rather than weakening isolation. Do not invent an artifact link, local path or public URL.
+    node scripts/serve.mjs --lesson /path/to/private/build/index.html --bind <reachable-interface-address> --port 0 --hours 4 --state /path/to/private/delivery.json
+    node scripts/serve.mjs --stop /path/to/private/delivery.json
 
-Prefer short learner-oriented explanations and follow-up edits. Keep editable lesson content with the delivery so revisions can preserve the same learning need. Codex can be used through desktop and command-line surfaces; select delivery from the active interface.
+Port 0 lets the OS choose an unused port. For a LAN lesson bind the actual authorized LAN interface, not all interfaces. Default bind is loopback for author preview only. The host does not configure TLS, firewall rules, NAT, DNS or tunnels. Prefer an existing stable route for durable delivery rather than claiming a temporary process is permanent hosting.
 
-## Messaging and persistent agents
+The private manifest records the URL, expiry, bind address, process ID and stop token. Treat it as private agent state. The stop command uses its authenticated control endpoint; never expose its token in a learner URL or ask the parent to run it. The host stops automatically after the requested duration, up to 24 hours. It fills the lesson's adult information area with actual expiry and instructions to ask the agent to stop or revise it. For durable hosting with no expiry, state that instead of inventing a time limit.
 
-An output path on the agent's server is not sufficient for the recipient. When LAN tablet delivery is part of the task, prefer the temporary lesson URL described above. In the originating request conversation, use the host's supported artifact/attachment mechanism for an offline index.html or ZIP when useful. Keep the embedded license notice when sending the HTML alone.
+Hosting availability is independent of learning duration. The --hours setting controls how long the temporary web service runs; it is not a lesson timer, recommended study time or reason to set a ten-minute activity limit.
 
-Confirm that the file actually exists before presenting it for delivery. Do not report an attachment as sent unless the host reports success or exposes a verified attachment. If delivery is unavailable or fails, retain the files and explain the limitation. Do not send to a different recipient or publish a hosted webpage without the user's request.
+The host reads the built page for every request. Publish revisions atomically: compile and build to a new private directory, then use serve.mjs --update /path/to/private/delivery.json --lesson /path/to/new-build/index.html. Existing open sessions retain their page; reopening loads the revised lesson. The route and expiry stay the same. To extend the temporary service use --extend /path/to/private/delivery.json --hours 4; this retains its route. The standalone player does not migrate or persist practice state.
 
-Hermes documents HTML and ZIP delivery through its messaging gateway. In versions using Deliverable Mode, generated paths in ordinary response text can be converted to native attachments; paths inside backticks or code blocks are ignored. Follow the installed version's tools and configuration rather than assuming this is enabled everywhere. The chat application may require downloading HTML and opening it in a browser instead of rendering it inline.
+## Verify and record evidence
 
-## CLI and other hosts
+Request the exact learner URL and verify it returns the intended lesson, not just a listening port. Distinguish a server-local request, an author-browser request and a real learner-device request. A local probe is not tablet verification. A demonstrated failure to reach the learner network blocks completed delivery; absence of a physical tablet alone does not prove failure. The lesson may accurately state that device verification is pending.
 
-Save the deliverables in the requested workspace, or an appropriate task output directory when no path was specified. Report the actual file to open and how to request revisions. Preserve support for scripted validation and building without making terminal use the primary user journey.
+Record actual URL, audience/network scope, expiry, stop/revision method and performed checks in private delivery state or the host's equivalent. Put concise nontechnical lifecycle and check status inside the page. The built player supplies an adult information area. build.mjs --review embeds only standard status labels from the private report, never its evidence. Existing hosts can supply lifecycle details in that area. Keep iframe isolation and CSP intact. Do not work around browser or network policies.
 
-## Scope of compatibility
+## Final reply and later changes
 
-Documentation establishes intended integration, not a passed product-level test. Loading a SKILL.md, executing its scripts, previewing HTML and delivering a file are separate capabilities. A plain chat that cannot load resources or run tools may use instructions as context, but has not thereby completed the full Skill workflow.
+After a successful handoff, reply with just one clickable lesson URL. Important limitations belong in the page before handoff. If a material issue or missing route prevents delivery, give a short accurate blocker instead of a success-shaped link.
 
-Official references, checked 2026-10-29:
+For a revision, retrieve the existing author workspace and deployment, preserve the original need, edit the single source, compile, validate and repeat relevant checks. Reports are bound to the artifact digest: a previous pass does not prove new content. Update the existing deployment when possible and return its URL. Never ask the parent to synchronize HTML and JSON or repackage the lesson.
 
-- [OpenAI: Build skills](https://learn.chatgpt.com/docs/build-skills) — standalone skill availability and optional desktop metadata.
-- [OpenAI: Work with files](https://learn.chatgpt.com/docs/artifacts-viewer) — file delivery and HTML previews when available.
-- [Hermes: Deliverable Mode](https://hermes-agent.nousresearch.com/docs/user-guide/features/deliverable-mode) — gateway attachments and supported file types.
+## Portability and synchronization
+
+Use Node.js 20+ and resolve paths from this installed skill and the chosen workspace. Do not put Windows drives, local accounts, fixed LAN addresses, developer credentials, agent-specific APIs or deployment accounts in the skill. Choose process management from the executing agent. Synchronize the skill directory only, excluding generated lessons, screenshots, dependency directories, manifests and credentials. These scripts work without package installation except the optional browser runner, which uses an already available Playwright module.

@@ -1,6 +1,6 @@
 {
   "name": "learning-skills",
-  "version": "0.1.4",
+  "version": "0.4.0",
   "private": true,
   "type": "module",
   "description": "Portable teaching skills and interactive learning artifacts for AI agents",
@@ -8,7 +8,7 @@
     "node": ">=20"
   },
   "scripts": {
-    "test": "node --test tests/*.test.mjs",
+    "test": "node --test tests/*.test.mjs skills/interactive-topic-lesson/scripts/self-test.mjs",
     "test:browser": "playwright test",
     "example:build": "node skills/interactive-topic-lesson/scripts/build.mjs examples/perimeter-area/lesson.json --out dist/perimeter-area",
     "example:check": "node skills/interactive-topic-lesson/scripts/validate.mjs examples/perimeter-area/lesson.json",

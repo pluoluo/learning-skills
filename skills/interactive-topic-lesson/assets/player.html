@@ -16,13 +16,19 @@ body{min-height:100dvh;display:flex;flex-direction:column}body>header,body>foote
 <header><h1 id="lesson-title">互动专题</h1><nav aria-label="课程视图"><button type="button" id="explore-tab" aria-pressed="true">动手探索</button><button type="button" id="test-tab" aria-pressed="false">换个例子</button></nav></header>
 <main>
 <iframe id="lesson-frame" title="专题互动内容" sandbox="allow-scripts" referrerpolicy="no-referrer"></iframe>
-<section id="quiz" aria-labelledby="quiz-title" hidden><h2 id="quiz-title">换个例子，看看发现能不能用</h2><p class="muted">可以随时回到探索。本次核对只描述这几道题的表现。</p><div id="questions"></div><div class="quiz-actions"><button type="button" id="check-test">核对本次选择</button><button type="button" id="reset-test">重新尝试</button></div><p id="result" role="status" aria-live="polite"></p></section>
+<section id="quiz" aria-labelledby="quiz-title" hidden><h2 id="quiz-title">换个例子，看看发现能不能用</h2><p class="muted">每题选一个答案，想改就点另一个选项。选好后点“检查答案”。也可以随时回到探索。</p><div id="questions"></div><div class="quiz-actions"><button type="button" id="check-test">检查答案</button><button type="button" id="reset-test" hidden>清空答案重做</button></div><p id="result" role="status" aria-live="polite"></p><div id="practice-summary" aria-live="polite" hidden></div></section>
 </main>
-<footer><span>独立练习 · 本次操作和选择仅保留在当前页面。</span><details><summary>内容来源与适用基础</summary><p id="source-note"></p><p id="grade-note"></p></details></footer>
+<footer><span>独立练习 · 本次操作和选择仅保留在当前页面。</span><details id="adult-info"><summary>家长看这里：课程说明与修改</summary><p id="source-note"></p><p id="grade-note"></p><p>需要改难度、例子或界面？直接告诉制作这节课的 agent，由它修改并更新网址。</p><p id="review-note"></p><p id="delivery-note">可用期限以课程托管服务为准；需要确认或停止访问，请联系制作这节课的 agent。</p></details></footer>
 <script>
 'use strict';
 /*__GRADING__*/
 const lesson = /*__LESSON__*/null;
+document.body.dataset.artifactSha256 = lesson.artifactSha256;
+const delivery = /*__DELIVERY__*/null;
+const statusLabels = {passed:'已检查',failed:'检查发现问题',not_run:'尚未检查'};
+const reviewNames = {static:'结构与脚本语法',browser:'浏览器操作与布局',subject:'内容与答案',learnerEffectiveness:'孩子实际试学效果'};
+document.getElementById('review-note').textContent = Object.entries(reviewNames).map(([key,label])=>label+'：'+(statusLabels[lesson.review?.[key]]||'尚未检查')).join('；')+'。';
+if(delivery?.expiresAt) document.getElementById('delivery-note').textContent = '此临时网址可用至 '+new Date(delivery.expiresAt).toLocaleString()+'（本设备时间）。需要停止、延长或修改，请告诉制作这节课的 agent。修改后重新打开即可，当前已打开的课件可继续使用。';
 document.title = lesson.title + ' · 互动专题';
 document.getElementById('lesson-title').textContent = lesson.title;
 document.getElementById('source-note').textContent = lesson.sourceNote;
@@ -30,6 +36,9 @@ document.getElementById('grade-note').textContent = lesson.gradeNote;
 const frame = document.getElementById('lesson-frame');
 const quiz = document.getElementById('quiz');
 const result = document.getElementById('result');
+const resetButton = document.getElementById('reset-test');
+const practiceSummary = document.getElementById('practice-summary');
+const firstChecks = Object.create(null);
 const answers = Object.create(null);
 let learned = false;
 let graded = false;
@@ -38,7 +47,7 @@ function viewport() {
 }
 function send(type, payload) { frame.contentWindow?.postMessage({channel:'special-study',type,payload},'*'); }
 function updateViewport() { const available=viewport();frame.style.minHeight=available.height+'px';send('viewport',available); }
-function context() { return {learned,archived:false,preview:true,standalone:true,viewport:viewport(),test:{passScore:lesson.test.passScore,questions:publicQuestions(lesson.test.questions)}}; }
+function context() { return {learned,archived:false,preview:true,standalone:true,capabilities:{requestTest:true},viewport:viewport(),test:{passScore:lesson.test.passScore,questions:publicQuestions(lesson.test.questions)}}; }
 function showTest(show) {
   frame.hidden = show; quiz.hidden = !show;
   document.getElementById('explore-tab').setAttribute('aria-pressed',String(!show));
@@ -47,14 +56,36 @@ function showTest(show) {
 }
 function clearFeedback(message='') {
   result.textContent = message; graded = false;
+  resetButton.hidden = true;
+  practiceSummary.hidden = true;
   document.querySelectorAll('.question-feedback').forEach(element=>element.textContent='');
+}
+function rememberFirstChecks(report) {
+  if(!report.ok)return;
+  for(const detail of report.details)if(!Object.hasOwn(firstChecks,detail.id))firstChecks[detail.id]=detail.correct;
 }
 function renderResult(report) {
   if (!report.ok) { result.textContent = report.error; return; }
   graded = true;
+  resetButton.hidden = false;
+  rememberFirstChecks(report);
   const correct = report.details.filter(detail=>detail.correct).length;
-  result.textContent = `本次 ${correct}/${report.details.length} 题选择正确（${report.score} 分）。${report.passed ? '可以回看依据，也可以换一个问题继续探索。' : '回看解释，或回到探索再试一次。'}`;
-  for (const detail of report.details) document.getElementById('feedback-'+detail.id).textContent = `${detail.correct?'本次选择符合题意。':'可以再比较一下。'} ${detail.explanation}`;
+  result.textContent = `本次答对 ${correct}/${report.details.length} 题（${report.score} 分）。请看各题说明。想改答案，直接点另一个选项，再点“检查答案”。`;
+  for (const detail of report.details) document.getElementById('feedback-'+detail.id).textContent = `${detail.correct?'这题选对了。':'这题还没选对。'} ${detail.explanation}`;
+  const byId=new Map(report.details.map(detail=>[detail.id,detail]));
+  const lines=(lesson.practiceCoverage||[]).map(dimension=>{
+    const checked=dimension.testIds.map(id=>byId.get(id)).filter(Boolean);
+    const first=checked.filter(detail=>firstChecks[detail.id]).length;
+    const now=checked.filter(detail=>detail.correct).length;
+    return dimension.focus+'：首次检查选对 '+first+'/'+checked.length+' 题，当前选对 '+now+'/'+checked.length+' 题。'+(first<checked.length?'本轮这个方面还需用不同例子再练。':'本轮这些题首次检查均选对；其他情形仍需检验。');
+  });
+  practiceSummary.replaceChildren();
+  if(lines.length){
+    const heading=document.createElement('p');heading.textContent='本轮练习观察（不代表已掌握整个专题）';practiceSummary.append(heading);
+    for(const line of lines){const p=document.createElement('p');p.textContent=line;practiceSummary.append(p);}
+    const note=document.createElement('p');note.textContent='这里只统计本页这些检查题。看过解释后改对、重做，不会改写首次检查记录；其他练习与未覆盖情形需另看。';practiceSummary.append(note);
+    practiceSummary.hidden=false;
+  } else practiceSummary.hidden=true;
 }
 for (const [index,question] of lesson.test.questions.entries()) {
   const fieldset = document.createElement('fieldset');
@@ -62,7 +93,16 @@ for (const [index,question] of lesson.test.questions.entries()) {
   for (const [optionIndex,option] of question.options.entries()) {
     const label=document.createElement('label');label.className='choice';
     const input=document.createElement('input');input.type='radio';input.name=question.id;input.value=String(optionIndex);
-    input.addEventListener('change',()=>{answers[question.id]=optionIndex;clearFeedback(graded?'已修改选择，请重新核对。':'');});
+    input.addEventListener('change',()=>{
+      const hadResult = graded;
+      answers[question.id]=optionIndex;
+      // Only the changed question's judgment is stale; keep other questions' explanations.
+      document.getElementById('feedback-'+question.id).textContent='';
+      const count=Object.keys(answers).length;
+      result.textContent=hadResult?'答案已更改，上次总分已清除。点“检查答案”重新检查。':count===lesson.test.questions.length?'每题都已选择。点“检查答案”查看结果。':`已选 ${count}/${lesson.test.questions.length} 题。选齐后点“检查答案”。`;
+      graded=false;resetButton.hidden=true;
+      practiceSummary.hidden=true;
+    });
     const span=document.createElement('span');span.textContent=option;label.append(input,span);fieldset.append(label);
   }
   const feedback=document.createElement('p');feedback.id='feedback-'+question.id;feedback.className='question-feedback';fieldset.append(feedback);document.getElementById('questions').append(fieldset);
@@ -71,9 +111,9 @@ document.getElementById('explore-tab').addEventListener('click',()=>showTest(fal
 document.getElementById('test-tab').addEventListener('click',()=>showTest(true));
 document.getElementById('check-test').addEventListener('click',()=>{
   const report=gradeAnswers(lesson.test,answers);renderResult(report);
-  if(!report.ok){const missing=lesson.test.questions.find(question=>!Object.hasOwn(answers,question.id));if(missing)document.getElementsByName(missing.id)[0]?.focus();}
+  if(!report.ok){const missing=lesson.test.questions.find(question=>!Object.hasOwn(answers,question.id));if(missing){result.textContent=`第 ${lesson.test.questions.indexOf(missing)+1} 题还没选。选好后点“检查答案”。`;document.getElementsByName(missing.id)[0]?.focus();}}
 });
-document.getElementById('reset-test').addEventListener('click',()=>{Object.keys(answers).forEach(key=>delete answers[key]);document.querySelectorAll('input[type=radio]').forEach(input=>input.checked=false);clearFeedback('已清除本次选择，可以重新尝试。');});
+resetButton.addEventListener('click',()=>{Object.keys(answers).forEach(key=>delete answers[key]);document.querySelectorAll('input[type=radio]').forEach(input=>input.checked=false);clearFeedback('答案已清空。每题选一个答案，再点“检查答案”。本页的首次检查记录会保留，重做不算新的首次作答。');});
 window.addEventListener('message',event=>{
   if(event.source!==frame.contentWindow||!event.data||event.data.channel!=='special-study')return;
   const {type,payload}=event.data;
@@ -84,8 +124,9 @@ window.addEventListener('message',event=>{
     frame.style.height=(requested>=available&&requested-available<1?available:requested)+'px';
   }
   if(type==='complete'){learned=true;send('learned',{learned:true,localOnly:true});}
-  if(type==='submit'){const report=gradeAnswers(lesson.test,payload);send(report.ok?'result':'error',report.ok?report:{message:report.error});}
+  if(type==='submit'){const report=gradeAnswers(lesson.test,payload);rememberFirstChecks(report);send(report.ok?'result':'error',report.ok?report:{message:report.error});}
   if(type==='return')showTest(false);
+  if(type==='request-test')showTest(true);
   if(type==='tts'||type==='asr')send(type+'-error',{id:payload?.id,message:'独立版未接入语音服务，请使用文字与操作。'});
 });
 frame.addEventListener('load',()=>{updateViewport();send('context',context());});

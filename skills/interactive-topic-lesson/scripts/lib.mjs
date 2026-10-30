@@ -37,7 +37,8 @@ export function inspectCanvas(html, objectives, questions) {
     if (id(objective?.id) && !new RegExp(`\\bdata-learning-objective\\s*=\\s*["']${objective.id}["']`).test(source)) errors.push(`Missing canvas objective: ${objective.id}`);
   }
   for (const question of questions) {
-    if (id(question?.id) && new RegExp(`\\b${question.id}\\b`).test(source)) errors.push(`Keep formal question ID ${question.id} outside the teaching canvas`);
+    // A shared word/DOM ID is not a copied formal test. Inspect explicit test hooks only.
+    if (id(question?.id) && new RegExp(`\\bdata-(?:question|test)-id\\s*=\\s*["']${question.id}["']`).test(source)) errors.push(`Keep formal question hook ${question.id} outside the teaching canvas`);
   }
   return errors;
 }
@@ -53,6 +54,9 @@ export function validateLesson(lesson) {
   check(['math', 'chinese', 'english'].includes(lesson.subject), 'subject must be math, chinese or english');
   check(text(lesson.need, 2000), 'need must contain the original learning need (1–2000 characters)');
   check(Array.isArray(lesson.assumptions) && lesson.assumptions.length <= 12 && lesson.assumptions.every(value => text(value, 300)), 'assumptions must be an array of up to 12 short strings');
+  const design = lesson.learningDesign;
+  const version = typeof lesson.skillVersion === 'string' ? lesson.skillVersion.split('.').map(Number) : [];
+  if (version[0] > 0 || version[0] === 0 && version[1] >= 3) check(plain(design), '0.3+ lessons require learningDesign');
   const objectives = Array.isArray(lesson.objectives) ? lesson.objectives : [];
   check(objectives.length >= 1 && objectives.length <= 5, 'Provide 1–5 objectives');
   const content = plain(lesson.content) ? lesson.content : {};
@@ -75,6 +79,9 @@ export function validateLesson(lesson) {
     check(Array.isArray(choices) && choices.length >= 2 && choices.length <= 8 && choices.every(value => text(value, 160)) && new Set(choices).size === choices.length, `Question ${question.id}: provide 2–8 distinct options`);
     check(Array.isArray(choices) && Number.isInteger(question.answer) && question.answer >= 0 && question.answer < choices.length, `Question ${question.id}: answer must be a valid zero-based integer`);
     check(text(question.explanation, 350), `Question ${question.id}: invalid explanation`);
+    if (question.optionFeedback !== undefined || design?.mode === 'training') {
+      check(Array.isArray(choices) && Array.isArray(question.optionFeedback) && question.optionFeedback.length === choices.length && question.optionFeedback.every(value => text(value, 350)), `Question ${question.id}: optionFeedback needs one 1–350 character explanation per option`);
+    }
     check(question.diagram === undefined, `Question ${question.id}: portable v1 does not yet support host-specific diagram objects`);
   }
   const objectiveIds = new Set();
@@ -89,6 +96,23 @@ export function validateLesson(lesson) {
     if (Array.isArray(refs)) refs.forEach(value => covered.add(value));
   }
   check(questions.every(question => covered.has(question?.id)), 'Every question must map to an objective');
+  if (design !== undefined) {
+    check(plain(design), 'learningDesign must be an object');
+    check(['training', 'exploration'].includes(design?.mode), 'learningDesign.mode must be training or exploration');
+    for (const [key, max] of [['strategy',500],['progression',1000],['evidencePolicy',1000]]) check(text(design?.[key], max), `learningDesign needs ${key} (1–${max} characters)`);
+    const coverage = Array.isArray(design?.coverage) ? design.coverage : [];
+    check(coverage.length >= 1 && coverage.length <= 20, 'learningDesign.coverage needs 1–20 scoped dimensions (a resource limit, not a quota)');
+    const dimensionIds = new Set(), designedQuestions = new Set();
+    for (const [index, dimension] of coverage.entries()) {
+      if (!plain(dimension)) { errors.push(`Coverage ${index+1} must be an object`); continue; }
+      check(id(dimension.id) && !dimensionIds.has(dimension.id), `Coverage ${index+1} needs a valid unique ID`);
+      dimensionIds.add(dimension.id);
+      for (const [key,max] of [['focus',300],['contrast',500],['practice',500]]) check(text(dimension[key],max), `Coverage ${dimension.id}: missing ${key}`);
+      check(Array.isArray(dimension.testIds) && dimension.testIds.length > 0 && new Set(dimension.testIds).size === dimension.testIds.length && dimension.testIds.every(value => questionIds.has(value)), `Coverage ${dimension.id}: testIds must reference existing questions without duplicates`);
+      if (Array.isArray(dimension.testIds)) dimension.testIds.forEach(value=>designedQuestions.add(value));
+    }
+    check(questions.every(question=>designedQuestions.has(question?.id)), 'Every question must map to a learningDesign coverage dimension');
+  }
   if (typeof html === 'string') errors.push(...inspectCanvas(html, objectives, questions));
   return {
     ok: errors.length === 0,
@@ -108,7 +132,7 @@ export function gradeAnswers(test, answers) {
   const ids = new Set(test.questions.map(question => question.id));
   if (Object.keys(answers).length !== ids.size || Object.keys(answers).some(key => !ids.has(key))) return { ok: false, error: '请完成每一道题后再核对。' };
   if (test.questions.some(question => !Object.hasOwn(answers, question.id) || !Number.isInteger(answers[question.id]) || answers[question.id] < 0 || answers[question.id] >= question.options.length)) return { ok: false, error: '选择不完整或无效，请重新核对。' };
-  const details = test.questions.map(question => ({ id: question.id, correct: answers[question.id] === question.answer, answer: question.answer, explanation: question.explanation }));
+  const details = test.questions.map(question => ({ id: question.id, selectedOption: answers[question.id], correct: answers[question.id] === question.answer, answer: question.answer, explanation: question.optionFeedback?.[answers[question.id]] ?? question.explanation }));
   const score = Math.round(100 * details.filter(detail => detail.correct).length / details.length);
   return { ok: true, localOnly: true, score, passed: score >= test.passScore, passScore: test.passScore, details };
 }
