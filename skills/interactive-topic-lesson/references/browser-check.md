@@ -1,22 +1,52 @@
-# Repeatable browser checks (optional)
+# 浏览器检查：由 Agent 使用已有能力完成
 
-Use the environment's permitted browser tools or this runner with an already available Playwright module. Do not install a browser, bypass an access policy or assume a fixed module path. An unavailable browser remains not_run; it does not block static authoring. A known material browser failure must be repaired before completed learner handoff.
+优先使用 Agent 或运行环境已经提供的浏览器工具。由 Agent 自己选择打开预览、进入 iframe、操作、缩放和截图的方式；本 Skill 规定检查内容与证据，不规定工具品牌、编程库或调用协议。不要求 Playwright，不要求为每节课生成浏览器脚本或 JSON 操作计划。
 
-    node scripts/check-browser.mjs private/lesson.json --url <authorized-preview-url> --plan private/browser-plan.json --out private/browser
+## 先确认能力，避免临时开发驱动
 
-Use --module /path/to/playwright/index.mjs only when a module entry is supplied by the actual environment. Paths and screenshots belong in the agent workspace, not the synchronized skill directory. The runner supports Chromium; other permitted browser tools can perform the same checks with recorded evidence.
+准备交付路线时，查看现有浏览器工具是否支持页面访问、画布所在 iframe、操作和截图。构建后尽早用实际预览确认一次主要操作。浏览器已安装、页面已打开或端口可达，都不等于这些能力已经验证。
 
-## Action plan
+如果工具能操作 iframe，直接使用它的 frame/上下文选择能力。不在每次课件制作中手写 CDP、WebSocket、target/session 管理或 OOPIF attach 逻辑，不因缺少 Playwright 自动安装整套框架。iframe 由独立进程承载属于浏览器实现细节，应由已有工具处理；不能取消课件的 sandbox、CSP 或改掉隔离结构来方便检查。
 
-The agent writes a small JSON plan from the actual authored controls, not guessed selectors. Cases start with a fresh lesson at each CSS viewport; their steps must navigate as needed. Required case IDs are primary, wrong, support, transfer, keyboard and responsive. These are acceptance coverage, not required lesson sections or teaching quotas. Every case needs at least one observable assertion. Use an actual key action for keyboard, and resize in both directions with an assertion of retained input for responsive.
+遇到权限或连接问题，使用当前环境支持的恢复方式或正常授权流程，再做至多一次针对性重试。仍不可用时，保留课件，记录 browser:not_run、失败原因和缺少的能力，不进入长时间底层调试。已经观察到的课件缺陷必须记 failed，不能改成 not_run。浏览器工具开发或依赖安装只有在用户另行要求时才作为独立任务开展。
 
-Within these cases, cover selection and changing a selection before checking, one direct check, editing a checked answer and checking again. Assert the relevant learning consequence and removal of stale displays/results, not only the eventual score. If the design includes linked evidence, verify that it belongs to the current response and does not perform the intended reasoning for the learner. Check reset/restore visibility and effect for the current state; a single-choice activity needs no reset before checking, while a multi-step construction may meaningfully restore its initial configuration. Review whether button names match effects and whether two buttons unnecessarily perform one confirmation. The runner does not infer these semantics from labels; the plan and agent review must test them.
+## 实际检查什么
 
-For each interaction pattern, compare the effect implied by the visible controls with its actual consequence, including reversal where relevant. The chosen convention must make actions and states understandable; successfully changing a value alone is insufficient. Teaching complexity and plausible distractors still require subject review rather than DOM assertions.
+围绕当前课件的真实操作，覆盖以下内容；不必机械地拆成固定数量的脚本、页面或测试用例：
 
-In training, inspect the initial usable strategy and exercise materially different wrong options where available. Their explanations must analyze their different errors using task evidence. Check an item-specific hint followed by a correction, rechecking the same answer, and a reset: the learning summary must distinguish earlier first checks from current success and not relabel supported retries as new independent success. Verify the coverage map against actual item variation, not just labels or item counts. These teaching judgments belong in subject review evidence; the runner cannot infer them from the DOM.
+- 主要学习操作：进入教学画布，真正改变对象、构造或表达，核对其可见后果。不能只检查外壳或“检查答案”按钮。
+- 不同错误与修改：尝试有实质区别的错误，确认反馈解释各自的问题；修改输入后，旧判断和旧证据要失效或更新。
+- 支持与重试：使用按需提示或有意义的恢复操作，检查后续记录没有把借助帮助改对记作新的独立成功。简单选择可直接改选，不要求额外确认或重置。
+- 新例检验：操作与学习目标相关的新情境；不能用只换数字的重复题冒充广泛迁移。
+- 键盘与触控布局：执行实际键盘操作，检查触控目标、图文可读性、控件可达性及溢出。
+- 尺寸变化：在所需视口查看；窗口缩小、放大，并展开/收起帮助，确认输入保留、画布尺寸恢复且没有持续测高增长。
 
-Example step forms (replace selectors and text with the real lesson's controls):
+默认视口为1000×600、1920×1080 CSS px，用户明确指定时按其要求。截图必须显示实际课件，Agent 要打开并查看截图，而不只是确认文件存在。检查学习对象是否有效利用空间、比例是否保持、是否存在截断或大量无意义留白。桌面浏览器的视口与触控模拟不等于物理平板验收。
+
+对训练内容，还需审查初始支持是否可用、选项是否有合理干扰、材料是否提供足够推理依据、逐项反馈是否切中所选错误。这些教学判断不能由点击成功、结构校验或正确率替代。具体学科规则见对应 subjects 指南及 learning-design.md。
+
+## 记录结果，不绑定检查工具
+
+build.mjs 会产生与课件摘要绑定的 review.json。使用任何现有浏览器工具完成后，都可以直接更新该报告，无需再运行附带脚本来取得“合格”标记。
+
+在 checks.browser 中记录：
+
+- status：passed、failed 或 not_run。
+- evidence：实际使用的工具/方式、检查视口、所执行操作与观察结果、已查看的截图位置、未覆盖范围。
+
+passed 要有真实操作及截图查看的证据；只打开页面、只得到截图文件或只检查语法都不够。局部检查应如实记录覆盖范围；若尚未覆盖关键操作与视口，不标整体 passed。无法截图或看图时保留相应未验范围，不虚构视觉验收。学科正确性在 checks.subject 单独记录，真实孩子学习效果在 checks.learnerEffectiveness 单独记录。
+
+修改内容后原摘要对应的通过记录失效。完成检查后用 build.mjs --review /path/to/review.json 重建；只有状态标签进入家长说明区，私有证据留在工作目录。已知影响使用的实质失败要修复后才能作为完成课件交付；检查能力缺失时明确标出未验范围和交付限制。
+
+## 可选：现成的 Playwright 执行器
+
+仅在环境已有可用 Playwright，且确实需要可重复的自动回归时，使用附带工具。Agent 自带浏览器能力可用时无需运行这一节；没有 Playwright 时也无需为此安装它。
+
+    node scripts/check-browser.mjs private/lesson.json --url <预览网址> --plan private/browser-plan.json --out private/browser
+
+已有运行库入口可用 --module /path/to/playwright/index.mjs 指定。该工具使用 Playwright 默认 Chromium 启动方式，不自动安装依赖、下载浏览器或修复访问权限。如果与当前环境不匹配，使用已有浏览器工具，或记录未验原因；不要为完成本次课件重写底层连接。
+
+以下是执行器专用格式，不是所有 Agent 的浏览器检查要求：
 
 ```json
 {
@@ -25,18 +55,12 @@ Example step forms (replace selectors and text with the real lesson's controls):
     "id":"primary",
     "steps":[
       {"op":"click","selector":"#grow-width"},
-      {"op":"text","selector":"#feedback","value":"the actual predicted change"}
+      {"op":"text","selector":"#feedback","value":"操作后应出现的实际内容"}
     ]
   }]
 }
 ```
 
-This abbreviated example needs the other five cases before it can run. Steps support click, press, fill, text (substring assertion), visible (boolean value, default true) and resize (width,height). Selector steps default to scope:"canvas"; use scope:"player" for host controls. press uses value:"Enter", "Space" or another Playwright key. Responsive steps may change dimensions within a case; inspect controls, open/close support and confirm input survives a large→small→large or small→large→small cycle.
+上例仅示意一项。执行器完整计划要求 primary、wrong、support、transfer、keyboard、responsive 六类唯一 case，每类至少一个可观察的 text 或 visible 断言；keyboard 要有实际 press，responsive 要有往返 resize 和输入保留断言。步骤支持 click、press、fill、text（包含关系）、visible（value 默认为 true）、resize（width/height）；默认 scope:canvas，外壳用 scope:player。选择器来自实际课件，不凭空猜测。
 
-The runner checks the served artifact digest, script/console errors, horizontal overflow, clipped control bounds and learning-root clipping. It records diagram sizes rather than imposing a universal minimum: geometric meaning and meaningful screen use still need visual review. It writes browser-report.json and screenshots. Inspect images as well as operation; automated bounds are not visual acceptance. A screenshot failure fails the run. CSS pixels are not physical device pixels or proof of touch behavior.
-
-## Review record
-
-build.mjs generates review.json with artifactSha256 and four checks: static, browser, subject and learnerEffectiveness. Each has status passed|failed|not_run and an evidence array. Record actual method, sizes, scenario results and private screenshot/report locations. A browser pass requires both the performed interactions and the agent's visual inspection; a runner pass alone does not establish that composition is good. Subject review recomputes answers and representations separately. Learner effectiveness needs actual learner observation.
-
-After reviewing, rebuild with --review /path/to/review.json. The report must match the current artifact digest; changing content invalidates old reports. Only status labels are embedded in the parent's course-information area, never private evidence. Do not automatically promote browser or learner status merely because build or validate succeeded. A separately performed browser run may be recorded manually if this optional runner was unavailable.
+执行器验证课件摘要、脚本/控制台错误、横向溢出、控件及根元素截断，记录图形尺寸、操作和截图。结果保存在 browser-report.json；Agent 仍需查看图像并审查教学内容。自动化结果不代表真实孩子学习效果。

@@ -4,7 +4,7 @@ license: MIT
 description: Create interactive topic learning and practice in Chinese, mathematics or English through one entry point, loading the matching subject guidance. By default, deploy locally and deliver one LAN URL for a tablet on the same network; the agent owns later revisions. Use for 互动专题、互动小课、专题训练、知识点探索; printable exam layout is separate.
 metadata:
   author: pluoluo
-  version: "0.4.0"
+  version: "0.4.1"
 ---
 
 # Interactive topic lesson
@@ -13,7 +13,7 @@ Build a coherent topic learning experience: appropriate support, meaningful oper
 
 Default delivery is a lesson hosted on a computer in the learner's LAN, opened by a tablet on that same network. The agent handles local deployment, checks, private editable sources and revisions, then replies with one lesson URL. These defaults belong to the skill: do not ask parents to repeat them in a usage prompt. Change them only when the user requests a different delivery mode.
 
-Requires file-writing tools, Node.js 20+ and a reachable hosting route for completed URL delivery. The lesson itself is self-contained and needs no account, API key or remote dependencies. Browser automation is optional; unavailable checks must remain unverified.
+Requires file-writing tools, Node.js 20+ and a reachable hosting route for completed URL delivery. The lesson itself is self-contained and needs no account, API key or remote dependencies. Use the agent's existing browser capabilities for actual operation and visual checks; Playwright is not a skill requirement. Unavailable checks must remain unverified.
 
 ## Understand the learning need
 
@@ -61,6 +61,10 @@ Keep the canvas independent of the standalone player's navigation and test UI. U
 
 Read [references/agent-delivery.md](references/agent-delivery.md) early to identify the local deployment machine and its reachable LAN interface. Tablet browsers are the primary learning surface. Keep paths and process management portable across desktop, CLI and persistent remote agents. A remote authoring agent must use a machine or authorized service on the learner's LAN; its own private IP may be on a different network. Host only the built learner page; keep sources, formal content packages and reports private. A loopback-only check does not prove tablet access.
 
+Use the browser tools already supplied by the agent or its environment. The agent chooses how to open the preview, enter the lesson iframe, operate controls and take screenshots. Read [references/browser-check.md](references/browser-check.md) for what to check and how to record evidence; it does not require a particular browser product, library, test-plan file or script. Missing Playwright alone is not a blocker. Check the available tool's frame support early; do not write a raw CDP/WebSocket driver, debug OOPIF attachment, or install a browser framework as part of ordinary lesson production. Keep the delivered iframe sandbox and CSP intact.
+
+If access fails, use the environment's supported recovery or normal permission flow, then make at most one focused retry. If the needed capability is still unavailable, retain the lesson and record browser:not_run with the reason; do not turn content production into browser-tool development. Record an actual observed lesson defect as failed, even if later access is blocked. Explain any delivery limit honestly; a draft is not a verified finished lesson. Browser-tool development is a separate task when explicitly requested.
+
 From the installed skill directory, run:
 
 ```bash
@@ -71,7 +75,7 @@ node scripts/build.mjs /path/to/private/lesson.json --out /path/to/private/build
 
 Resolve scripts relative to this SKILL.md; do not assume the user is in the skill directory. Write results to the requested workspace, not into the installed skill. The builder refuses existing output files unless --force is supplied for an intended rebuild.
 
-Validation checks structure, references, classic script syntax and some dependency hazards. Its report does not establish teaching correctness or browser behavior. Review actual strategy, coverage, progression and every selected-option feedback against the selected subject guide, learning-design.md and teaching.md, not just final answers. In private review.json subject evidence, name the loaded guide and performed content checks, including the most ambiguous case and any outcome that the interactions cannot establish. Record browser/learner checks separately; never replace not_run with passed without evidence. For the optional repeatable browser runner, read [references/browser-check.md](references/browser-check.md); it uses an available Playwright installation and does not install a browser or fix access policy. If a browser is available, exercise the primary operation, distinct wrong options where present, a hint or reset, new-example checks, learning-summary interpretation and keyboard interaction at the requested sizes. The default shipped sizes are 1000×600 and 1920×1080 CSS pixels; adapt them when the user requests another context.
+Validation checks structure, references, classic script syntax and some dependency hazards. Its report does not establish teaching correctness or browser behavior. Review actual strategy, coverage, progression and every selected-option feedback against the selected subject guide, learning-design.md and teaching.md, not just final answers. In private review.json subject evidence, name the loaded guide and performed content checks, including the most ambiguous case and any outcome that the interactions cannot establish. Record browser/learner checks separately; never replace not_run with passed without evidence. If a browser is available, exercise the primary operation, distinct wrong options where present, a hint or reset, new-example checks, learning-summary interpretation and keyboard interaction at the requested sizes. The default shipped sizes are 1000×600 and 1920×1080 CSS pixels; adapt them when the user requests another context.
 
 Inspect the rendered composition as well as operation: meaningful use of screen height, actual diagram size, control reachability and overflow. Resize a live lesson in both directions and open/close support to catch retained heights or resize loops, while preserving learner input. Distinguish CSS viewport size from physical pixel density or browser zoom; record which was tested. Passing interaction tests alone is not a responsive-layout acceptance result.
 

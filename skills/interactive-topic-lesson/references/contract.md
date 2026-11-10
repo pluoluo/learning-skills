@@ -15,7 +15,7 @@ The root contains:
 ```json
 {
   "format": "interactive-topic-lesson.v1",
-  "skillVersion": "0.4.0",
+  "skillVersion": "0.4.1",
   "title": "Lesson title",
   "subject": "math",
   "need": "The user's original learning need",
@@ -64,7 +64,7 @@ The root contains:
 
 subject is math, chinese or english. IDs are stable, unique within their collection, at most 40 characters and match [a-zA-Z][a-zA-Z0-9_-]*. All objective testIds must exist; every question must be referenced. One to five objectives and one to fifty questions are resource limits inherited from the current host design. Questions have two to eight distinct choices and a zero-based integer answer. passScore is an integer from 60 to 100.
 
-Version 0.4 routes authoring through the matching references/subjects guide using this existing subject field; it does not add a new public format or scoring engine. In private review.json subject evidence, identify the guide and actual content review performed. The current formal-check player supports single-choice questions. Other learning actions can live in the canvas, but recognizing an option does not by itself establish free expression, a written proof or listening/speaking performance. If a requested outcome requires evaluation the current host cannot provide, raise that boundary instead of silently claiming an equivalent outcome.
+Version 0.4 routes authoring through the matching references/subjects guide using this existing subject field; it does not add a new public format or scoring engine. Version 0.4.1 clarifies agent-owned browser checking; the artifact format and review statuses are unchanged, and browser evidence can come from any permitted existing tool. In private review.json subject evidence, identify the guide and actual content review performed. The current formal-check player supports single-choice questions. Other learning actions can live in the canvas, but recognizing an option does not by itself establish free expression, a written proof or listening/speaking performance. If a requested outcome requires evaluation the current host cannot provide, raise that boundary instead of silently claiming an equivalent outcome.
 
 For skillVersion 0.3.0 and later, learningDesign is required at the lesson root. Older versions without it remain supported. mode is training or exploration. strategy is 1–500 characters; progression and evidencePolicy are each 1–1000. coverage has 1–20 unique dimension IDs (a resource limit, not a teaching quota), each with focus (1–300), contrast and practice (1–500 each), and nonempty unique testIds referencing real formal questions. Every question maps to a coverage dimension. This metadata stays out of special-study.json. The standalone page receives only dimension IDs, labels and test links for limited practice summaries, not the private design narrative. A structural map is not proof of genuine coverage; review the actual tasks against it.
 

@@ -33,6 +33,8 @@ Request the exact learner URL and verify it returns the intended lesson, not jus
 
 Record actual URL, audience/network scope, expiry, stop/revision method and performed checks in private delivery state or the host's equivalent. Put concise nontechnical lifecycle and check status inside the page. The built player supplies an adult information area. build.mjs --review embeds only standard status labels from the private report, never its evidence. Existing hosts can supply lifecycle details in that area. Keep iframe isolation and CSP intact. Do not work around browser or network policies.
 
+Use the agent's existing browser tools to check this exact URL, including its lesson iframe. No particular automation library or script is required; record real operations and inspected screenshots in review.json as described in browser-check.md. If tools are blocked, use the supported recovery once, then report the missing capability rather than developing a CDP driver during lesson production. Preserve an observed lesson failure as failed. Availability of Chrome alone does not prove agent control.
+
 ## Final reply and later changes
 
 After a successful handoff, reply with just one clickable lesson URL. Important limitations belong in the page before handoff. If a material issue or missing route prevents delivery, give a short accurate blocker instead of a success-shaped link.
@@ -41,4 +43,4 @@ For a revision, retrieve the existing author workspace and deployment, preserve 
 
 ## Portability and synchronization
 
-Use Node.js 20+ and resolve paths from this installed skill and the chosen workspace. Do not put Windows drives, local accounts, fixed LAN addresses, developer credentials, agent-specific APIs or deployment accounts in the skill. Choose process management from the executing agent. Synchronize the skill directory only, excluding generated lessons, screenshots, dependency directories, manifests and credentials. These scripts work without package installation except the optional browser runner, which uses an already available Playwright module.
+Use Node.js 20+ and resolve paths from this installed skill and the chosen workspace. Do not put Windows drives, local accounts, fixed LAN addresses, developer credentials, agent-specific APIs or deployment accounts in the skill. Choose browser tools and process management from the executing agent. Synchronize the skill directory only, excluding generated lessons, screenshots, dependency directories, manifests and credentials. Compile/validate/build/serve need no package installation. The optional script runner uses an already available Playwright module; agent-owned browser checking has no such requirement.
