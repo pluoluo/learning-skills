@@ -6,6 +6,8 @@ State the user-reported need faithfully, the recent focus and any unverified ass
 
 Each objective connects a concrete learning object, an allowed learner action, the resulting change or invariant, useful feedback, optional help and a check in another example. A title, a rule list, a decorative animation or a Next button does not establish that connection. Interaction types should vary with the subject and need.
 
+When the user asks for conceptual depth and active thinking, identify what the learner must predict, construct, transform or explain before choosing controls. A page called a workshop or assembly bench can still be only a quiz if every meaningful act is picking a supplied answer. Include an operation whose consequence the learner can investigate and use as evidence; choose its form from the subject. Simple choices can support an entry example or check, but the standalone player's single-choice checks must not determine the whole learning design. State what thinking remains unobserved.
+
 Use the learning goal to set scope, not an invented minute count. A small lesson focuses on a coherent learning need; it has no fixed duration, stage-time quotas or minimum time before continuing. Let learners explore, retry, revisit and stop at their own pace. A user-supplied time preference can guide how much content to include without becoming a forced completion time.
 
 Keep the early explanation short enough to leave the main operation visible. Explain a result in terms of the learner's actual action and relevant relationship. Give specific support for a mistake and a chance to retry or change the object. Help is optional and may include a short demonstration; using it is not failure. Do not equate a hinted answer with independent performance.
@@ -21,6 +23,16 @@ For a consequential wrong attempt, explain the learner's selected answer: what i
 - Make the current state and the next action distinguishable using the chosen interaction convention. A state marker need not be an action label, but the complete visible control must make its effect predictable. Do not rely only on color, a hidden accessible label or trial-and-error to explain an inverted action. A reversible manipulation should have an understandable reverse or restore operation.
 - State what the learner may change and what relationship or quality they need to preserve or examine. Show the consequence without revealing the decision an independent task is meant to test. Worked demonstrations and requested hints may show more, but count as supported practice.
 - A single-choice answer remains editable by choosing another option; it needs no reset before checking. Offer “重新作答” only after an attempt has produced a result, or an explicitly named restore/clear action when it genuinely resets a multi-step construction. Changing a checked answer must invalidate its stale judgment and give a direct route to checking again. Do not clear unrelated work unnecessarily.
+
+## Budget the actual learning viewport
+
+The tablet viewport is not the canvas budget. At 1000×600 CSS px, the standalone header and collapsed footer can leave only about 400–470px for the learning area; exact height depends on title wrapping, fonts and footer state. Use the supplied context/viewport height and inspect the built host, not only a canvas opened on its own. An authoring assumption of 600px of canvas height can push the primary operation below the fold.
+
+Keep the main learning object, its essential controls and current feedback accessible within that allocation where practical. Reorganize or progressively disclose secondary help; allow deliberate scrolling for longer explanations rather than shrinking touch targets or clipping core content. Test both closed and expanded help, feedback after an error, view switching and round-trip resizing. A compact-height branch can help, but choose it from the content's available allocation rather than prescribing a universal 437px or 700px limit. Avoid a height-feedback loop by deriving layout from the host's stable viewport message, not the iframe's own growing document height. Contract.md defines the message.
+
+## Let the player supply formal-check judgments
+
+In content.test, explanation and optionFeedback should explain the response with evidence and a useful next move. The standalone player adds the correctness status itself. Start directly with the reason, such as “Tom 指一个人，play 在这里变成 plays…”, rather than “对。…” or “回答正确。…”. The same applies to incorrect-option explanations: explain the selected error rather than repeating “错。…”. Canvas-authored feedback controls its own wording and is separate from these formal-check fields.
 
 ## Check subject matter and representations
 

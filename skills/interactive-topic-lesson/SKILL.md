@@ -4,7 +4,7 @@ license: MIT
 description: Create interactive topic learning and practice in Chinese, mathematics or English through one entry point, loading the matching subject guidance. By default, deploy locally and deliver one LAN URL for a tablet on the same network; the agent owns later revisions. Use for 互动专题、互动小课、专题训练、知识点探索; printable exam layout is separate.
 metadata:
   author: pluoluo
-  version: "0.4.1"
+  version: "0.4.2"
 ---
 
 # Interactive topic lesson
@@ -48,6 +48,8 @@ Before writing the page, record a concise design in the agent-only author worksp
 For a reported difficulty or a request for training, use training mode and record learningDesign: a concise strategy, a coverage map of relevant confusions and contrasts, the linked operations and new checks, progression, and how first checks/hints/retries will be interpreted. Do not assume one demonstration covers a topic. A curiosity-led exploration can use exploration mode and a narrower stated scope without claiming weakness coverage. New 0.3+ lessons require this design; older artifacts remain supported.
 
 Describe the shortest useful action → visible consequence → judgment sequence. Each extra confirmation or reset must have a distinct purpose. Minimize redundant navigation, not learning depth or relevant practice. Visible labels, current states and the effects of actions must be consistent. Apply the interaction review in teaching.md and audit materials with learning-design.md. An eventual correct result does not excuse an ambiguous route or a set of trivial items.
+
+When depth and active thinking are requested, plan the learner's prediction, construction, transformation or explanation as the core experience. A workshop label or draggable answer choices do not establish that depth. Formal single-choice checks are supplementary and must not make the whole lesson a sequence of supplied answers; review the actual thinking demanded using teaching.md and the subject guide.
 
 Use one author source: lesson.source.json plus its referenced canvas.html. Compile these into portable lesson.json; generated build products are not separate editing targets. Create complete inline HTML/CSS/classic JavaScript in canvas.html; compilation embeds it under content.canvas.html. The first screen must make the learning action clear and operable. Provide a concise method or worked help when it supports the task; for discovery, give a clear goal and constraints without disclosing the relationship being investigated. Let learners change, compare, construct or express something, see consequences and try again. On an error, explain what the response captures and where it fails using task evidence, then offer a concrete revision move. Support hints, revisiting and stopping without forcing a sequence of perfect answers. Keep controls operable by touch and keyboard; provide a click alternative to dragging.
 

@@ -6,10 +6,25 @@ import { pathToFileURL } from 'node:url';
 import { readLesson } from '../skills/interactive-topic-lesson/scripts/lib.mjs';
 import { buildLesson } from '../skills/interactive-topic-lesson/scripts/build.mjs';
 
-let output;
+let output, longOutput;
 test.beforeAll(async () => {
   output = await mkdtemp(path.join(os.tmpdir(), 'lesson-browser-'));
-  await buildLesson(await readLesson(new URL('../examples/perimeter-area/lesson.json', import.meta.url)), output);
+  const sample = await readLesson(new URL('../examples/perimeter-area/lesson.json', import.meta.url));
+  await buildLesson(sample, output);
+  const fixture = structuredClone(sample);
+  fixture.title = '英语检查：当人物与表达发生变化时，怎样检查句子是否仍然表达原来的意思？';
+  fixture.subject = 'english';
+  fixture.content.test.questions = Array.from({length:6},(_,index)=>({
+    id:'long_'+index,
+    prompt:`第${index+1}个新情境：My sister watches the birds near the playground every morning. 换一个人物后，哪个句子仍符合给定情境？请读完整句再判断。`,
+    options:['She watches the birds near the playground every morning.','She watch the birds near the playground every morning.','They watches the birds near the playground every morning.'],
+    answer:0,explanation:'根据人物与句意检查完整表达。',
+    optionFeedback:['对。 She 指一个人，这里用 watches。请对照主语和整个句子。','错。 She 指一个人，这里应使用 watches；比较主语变化前后的动词形式。','They 指多个人，除了动词形式，还要确认是否改变了题目中的人物。'],
+  }));
+  fixture.objectives=[{...fixture.objectives[0],testIds:fixture.content.test.questions.map(q=>q.id)}];
+  fixture.learningDesign={mode:'training',strategy:'根据实际情境比较表达',coverage:[{id:'meaning',focus:'人物与表达之间的关系，需要同时关注指代、动词形式与完整句意',contrast:'比较形式和意思',practice:'修改后重新检查',testIds:fixture.content.test.questions.map(q=>q.id)}],progression:'从比较进入新情境',evidencePolicy:'本页有限证据'};
+  fixture.skillVersion='0.4.2';
+  longOutput=path.join(output,'long-checks');await buildLesson(fixture,longOutput);
 });
 test.afterAll(async () => { await rm(output, { recursive: true, force: true }); });
 
@@ -74,6 +89,7 @@ for (const viewport of [{ width: 1000, height: 600 }, { width: 1920, height: 108
       window.addEventListener('message', receive);parent.postMessage({channel:'special-study',type:'ready'},'*');
     }));
     expect(context.standalone).toBe(true);
+    expect(context.viewport.height).toBe(await page.locator('body>main').evaluate(element=>element.clientHeight));
     expect(context.test.questions.every(question => !('answer' in question) && !('explanation' in question))).toBe(true);
     const heightBefore = await page.locator('#lesson-frame').getAttribute('style');
     await page.evaluate(() => window.postMessage({channel:'special-study',type:'resize',payload:3999},'*'));
@@ -97,5 +113,43 @@ for (const viewport of [{ width: 1000, height: 600 }, { width: 1920, height: 108
     await canvas.getByRole('button', { name: '恢复这块花园' }).click();
     await expect(canvas.locator('#width-value')).toHaveText('6 米');
     expect(errors).toEqual([]);expect(external).toEqual([]);
+  });
+}
+
+for (const viewport of [{width:1000,height:600},{width:1920,height:1080}]) {
+  test(`long checks keep actions reachable and headings inside cards at ${viewport.width}×${viewport.height}`,async({page},testInfo)=>{
+    await page.setViewportSize(viewport);const errors=[];page.on('pageerror',error=>errors.push(error.message));
+    await page.goto(pathToFileURL(path.join(longOutput,'index.html')).href);
+    await page.locator('#test-tab').click();
+    const measure=()=>page.evaluate(()=>{
+      const box=selector=>document.querySelector(selector).getBoundingClientRect().toJSON();
+      return {height:innerHeight,documentHeight:document.documentElement.scrollHeight,main:box('body>main'),actions:box('.quiz-actions'),result:box('#result'),scroll:box('#quiz-scroll'),scrollHeight:document.querySelector('#quiz-scroll').scrollHeight,cards:[...document.querySelectorAll('.question-card')].map(card=>({card:card.getBoundingClientRect().toJSON(),legend:card.querySelector('legend').getBoundingClientRect().toJSON(),first:card.querySelector('.choice').getBoundingClientRect().toJSON()}))};
+    });
+    const initial=await measure();expect(initial.documentHeight).toBeLessThanOrEqual(viewport.height+1);
+    expect(initial.actions.bottom).toBeLessThanOrEqual(initial.main.bottom+1);expect(initial.scrollHeight).toBeGreaterThan(initial.scroll.height);
+    for(const entry of initial.cards){expect(entry.legend.top).toBeGreaterThan(entry.card.top);expect(entry.legend.bottom).toBeLessThanOrEqual(entry.first.top+1);}
+    // Tab navigation/locator focus scrolls the question region, while the action stays in place.
+    for(const question of await page.locator('fieldset').all())await question.locator('input').nth(1).check();
+    await page.locator('#check-test').click();await expect(page.locator('#result')).toContainText('0/6');
+    await expect(page.locator('#feedback-long_0')).toHaveText('这题还没选对。 She 指一个人，这里应使用 watches；比较主语变化前后的动词形式。');
+    const checked=await measure();expect(checked.documentHeight).toBeLessThanOrEqual(viewport.height+1);expect(checked.actions.bottom).toBeLessThanOrEqual(checked.main.bottom+1);expect(checked.result.bottom).toBeLessThanOrEqual(checked.main.bottom+1);
+    await page.locator('input[name="long_0"]').first().check();await expect(page.locator('#feedback-long_0')).toBeEmpty();await page.locator('#check-test').click();
+    await expect(page.locator('#feedback-long_0')).toHaveText('这题选对了。 She 指一个人，这里用 watches。请对照主语和整个句子。');
+    await expect(page.locator('#practice-summary')).toContainText('首次检查选对 0/6');
+    await page.locator('#quiz-scroll').focus();await page.keyboard.press('End');
+    await expect.poll(()=>page.locator('#quiz-scroll').evaluate(element=>element.scrollHeight-element.scrollTop-element.clientHeight)).toBeLessThanOrEqual(1);
+    const summaryEnd=await page.locator('#practice-summary p').last().boundingBox();
+    const scrollBounds=await page.locator('#quiz-scroll').boundingBox();
+    expect(summaryEnd.y+summaryEnd.height).toBeLessThanOrEqual(scrollBounds.y+scrollBounds.height+1);
+    await page.locator('#quiz-scroll').evaluate(element=>{element.scrollTop=0;});
+    await page.screenshot({path:testInfo.outputPath(`long-result-${viewport.width}.png`),fullPage:true});
+    await page.locator('footer summary').click();await expect(page.locator('#check-test')).toBeVisible();
+    const footerOpen=await measure();expect(footerOpen.actions.bottom).toBeLessThanOrEqual(footerOpen.main.bottom+1);expect(footerOpen.documentHeight).toBeLessThanOrEqual(viewport.height+1);
+    await page.locator('footer summary').click();
+    await page.setViewportSize(viewport.width===1000?{width:1920,height:1080}:{width:1000,height:600});await page.setViewportSize(viewport);
+    await expect(page.locator('input[name="long_0"]').first()).toBeChecked();
+    await page.locator('#reset-test').click();await expect(page.locator('input:checked')).toHaveCount(0);
+    await page.locator('#explore-tab').click();await page.locator('#test-tab').click();await expect(page.locator('#check-test')).toBeVisible();
+    expect(errors).toEqual([]);
   });
 }

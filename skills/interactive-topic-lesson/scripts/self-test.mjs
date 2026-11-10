@@ -124,7 +124,7 @@ test('player has one direct check, no pre-result retry, and invalidates only an 
   // This verifies event/state behavior; it is not browser rendering or touch acceptance.
   const ids=new Map(),elements=[],messages={};
   class Element {
-    constructor(tag){this.tagName=tag;this.children=[];this.events={};this.dataset={};this.style={};this.textContent='';this.className='';this.hidden=false;this.checked=false;this.clientWidth=1000;elements.push(this);}
+    constructor(tag){this.tagName=tag;this.children=[];this.events={};this.dataset={};this.style={};this.textContent='';this.className='';this.hidden=false;this.checked=false;this.clientWidth=1000;this.clientHeight=450;elements.push(this);}
     set id(value){this._id=value;ids.set(value,this);} get id(){return this._id;}
     append(...children){this.children.push(...children);}
     replaceChildren(...children){this.children=[...children];}
@@ -147,6 +147,9 @@ test('player has one direct check, no pre-result retry, and invalidates only an 
   const window={innerHeight:600,addEventListener:(name,handler)=>{messages[name]=handler;}};
   const sandbox={document,window,ResizeObserver:class{observe(){}},console};
   for(const match of built.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script\s*>/gi))new vm.Script(match[1]).runInNewContext(sandbox);
+  assert.equal(sandbox.formatFeedback(true,'对。 这个表达符合情境。'),'这题选对了。 这个表达符合情境。');
+  assert.equal(sandbox.formatFeedback(false,'错。 这里漏掉了条件。'),'这题还没选对。 这里漏掉了条件。');
+  assert.equal(sandbox.formatFeedback(true,'对比两处条件可以找到依据。'),'这题选对了。 对比两处条件可以找到依据。');
   const reset=ids.get('reset-test'),check=ids.get('check-test'),result=ids.get('result');
   // A canvas can also submit the formal check through the supported message API.
   // Seeing that feedback must count before a later check through the outer UI.

@@ -15,7 +15,7 @@ The root contains:
 ```json
 {
   "format": "interactive-topic-lesson.v1",
-  "skillVersion": "0.4.1",
+  "skillVersion": "0.4.2",
   "title": "Lesson title",
   "subject": "math",
   "need": "The user's original learning need",
@@ -64,11 +64,13 @@ The root contains:
 
 subject is math, chinese or english. IDs are stable, unique within their collection, at most 40 characters and match [a-zA-Z][a-zA-Z0-9_-]*. All objective testIds must exist; every question must be referenced. One to five objectives and one to fifty questions are resource limits inherited from the current host design. Questions have two to eight distinct choices and a zero-based integer answer. passScore is an integer from 60 to 100.
 
-Version 0.4 routes authoring through the matching references/subjects guide using this existing subject field; it does not add a new public format or scoring engine. Version 0.4.1 clarifies agent-owned browser checking; the artifact format and review statuses are unchanged, and browser evidence can come from any permitted existing tool. In private review.json subject evidence, identify the guide and actual content review performed. The current formal-check player supports single-choice questions. Other learning actions can live in the canvas, but recognizing an option does not by itself establish free expression, a written proof or listening/speaking performance. If a requested outcome requires evaluation the current host cannot provide, raise that boundary instead of silently claiming an equivalent outcome.
+Version 0.4 routes authoring through the matching references/subjects guide using this existing subject field; it does not add a new public format or scoring engine. Version 0.4.1 clarifies agent-owned browser checking; browser evidence can come from any permitted existing tool. Version 0.4.2 fixes the shared check-page layout and clarifies canvas height and feedback wording. The artifact format and review statuses remain unchanged. In private review.json subject evidence, identify the guide and actual content review performed. The current formal-check player supports single-choice questions. Other learning actions can live in the canvas, but recognizing an option does not by itself establish free expression, a written proof or listening/speaking performance. If a requested outcome requires evaluation the current host cannot provide, raise that boundary instead of silently claiming an equivalent outcome.
 
 For skillVersion 0.3.0 and later, learningDesign is required at the lesson root. Older versions without it remain supported. mode is training or exploration. strategy is 1–500 characters; progression and evidencePolicy are each 1–1000. coverage has 1–20 unique dimension IDs (a resource limit, not a teaching quota), each with focus (1–300), contrast and practice (1–500 each), and nonempty unique testIds referencing real formal questions. Every question maps to a coverage dimension. This metadata stays out of special-study.json. The standalone page receives only dimension IDs, labels and test links for limited practice summaries, not the private design narrative. A structural map is not proof of genuine coverage; review the actual tasks against it.
 
 optionFeedback is an array aligned with options, one nonempty 1–350 character explanation per choice. It is required in training mode and optional for exploration/legacy questions. gradeAnswers returns the selected choice's explanation when available, otherwise the legacy shared explanation. Keep the shared explanation meaningful for compatible hosts. Option-specific explanations stay outside publicQuestions/context until the learner submits; they are answer-bearing data, just like explanation. The standalone summary preserves the first valid check in current-page memory across edits and answer resets, separately from current results. It covers only these formal questions, not the canvas's hinted practice, and is not an authoritative record or mastery judgment.
+
+The standalone player supplies “这题选对了。” or “这题还没选对。” before the formal explanation. Author explanation/optionFeedback as the reason and evidence directly; do not prepend a second correctness judgment. The player tolerates a small set of legacy Chinese verdict prefixes, but this display compatibility is not a content-quality check.
 
 Content text limits: introduction 500 characters; sourceNote and gradeNote 300; question prompt 300; option 160; explanation 350. Canvas limit: 500,000 UTF-8 bytes and 500,000 JavaScript characters. Entire lesson limit: 1 MB UTF-8. These limits constrain artifacts, not the desired teaching length or amount of practice.
 
@@ -87,6 +89,8 @@ The standalone context advertises capabilities:{requestTest:true}. Show a canvas
 context includes learned, archived:false, preview:true, standalone:true, and test with prompts/options only. A submit result includes local score, passed, passScore and answer explanations, and explicitly has localOnly:true. No data is persisted. TTS/ASR requests receive an explicit unsupported error, so the canvas must retain a text/action path. See host-integration.md for the platform boundary.
 
 The standalone context also includes optional viewport:{width,height}: CSS pixels available to the learning canvas after host navigation and footer. The host sends a viewport message with the same payload when that space changes. A canvas may use this stable allocation to scale learning objects or establish a minimum workspace height. Continue reporting the actual naturally sized content root through resize, allowing longer content to scroll. Do not derive an ever-increasing root minimum from the auto-sized iframe's current height; the supplied allocation is independent of that feedback. Hosts that omit viewport remain compatible: retain a usable natural-content layout.
+
+At 1000×600 the host's canvas allocation can be only about 400–470px, not the full 600px. Use the actual supplied height, which changes when headings wrap or adult information opens; do not hard-code those approximate figures. Keep the primary operation accessible in that budget and put secondary material in deliberate scrolling/disclosure. The player keeps navigation and the check action reachable while formal questions, expanded feedback and the practice summary scroll inside their content region. Group labels and options retain native fieldset/legend semantics with a separate visual card boundary so wrapped legends do not intersect its border.
 
 ## Private build products
 

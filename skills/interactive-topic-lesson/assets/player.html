@@ -5,18 +5,27 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>互动专题</title>
 <style>
-:root{color-scheme:light;--page:#e8ecf5;--paper:#fffdf8;--ink:#1e293b;--muted:#475569;--line:#cbd5e1;--blue:#334db5;--orange:#b9471e;--radius:18px}
-*{box-sizing:border-box}body{margin:0;background:var(--page);color:var(--ink);font:18px/1.6 "PingFang SC","Microsoft YaHei",system-ui,sans-serif}button,input{font:inherit}button{min-height:44px;padding:8px 20px;cursor:pointer;border:1px solid var(--line);border-radius:12px;background:#fff;color:var(--ink);font-weight:700}button:focus-visible,input:focus-visible{outline:3px solid var(--blue);outline-offset:3px}button[aria-pressed="true"]{background:var(--blue);border-color:var(--blue);color:#fff}button:disabled{opacity:.6;cursor:wait}header{display:flex;align-items:center;justify-content:space-between;gap:24px;padding:14px 28px;background:var(--paper);border-bottom:1px solid var(--line)}h1{font-size:24px;line-height:1.25;margin:0}nav{display:flex;gap:10px;flex-shrink:0}#lesson-frame{display:block;width:100%;height:470px;border:0;background:var(--paper)}#quiz{padding:24px 32px}#quiz h2{font-size:26px;margin:0 0 6px}.muted{color:var(--muted);margin:4px 0 18px}#questions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px}fieldset{min-width:0;border:1px solid var(--line);border-radius:var(--radius);background:var(--paper);padding:18px;margin:0}legend{font-weight:750;padding:0 6px}.choice{display:flex;align-items:center;gap:12px;min-height:48px;padding:6px 10px;border-radius:10px;cursor:pointer}.choice:has(input:checked){background:#e5eaff}.choice input{width:20px;height:20px;accent-color:var(--blue)}.question-feedback{color:var(--muted);margin:12px 0 0}.question-feedback:empty{display:none}.quiz-actions{display:flex;gap:16px;align-items:center;flex-wrap:wrap;margin-top:22px}#check-test{background:var(--blue);color:#fff;border-color:var(--blue)}#result{font-weight:700;min-height:30px}footer{padding:16px 28px;color:var(--muted);font-size:14px;border-top:1px solid var(--line)}footer details{margin-top:4px}footer summary{cursor:pointer;min-height:28px}[hidden]{display:none!important}@media(max-width:750px){header{padding:12px 16px;gap:12px;flex-wrap:wrap}#questions{grid-template-columns:1fr}#quiz{padding:20px 16px}footer{padding:16px}h1{font-size:22px}}@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
-</style>
-<style>
-body{min-height:100dvh;display:flex;flex-direction:column}body>header,body>footer{flex:none}body>main{flex:1;display:flex;flex-direction:column;min-width:0}#lesson-frame{flex:none}#quiz{flex:1;display:flex;flex-direction:column}#questions{flex:1;grid-auto-rows:1fr}
+:root{color-scheme:light;--page:#e8ecf5;--paper:#fffdf8;--ink:#1e293b;--muted:#475569;--line:#cbd5e1;--blue:#334db5;--orange:#b9471e;--radius:16px}
+*{box-sizing:border-box}body{margin:0;background:var(--page);color:var(--ink);font:18px/1.6 "PingFang SC","Microsoft YaHei",system-ui,sans-serif;height:100dvh;display:flex;flex-direction:column;overflow:hidden}
+button,input{font:inherit}button{min-height:44px;padding:8px 20px;cursor:pointer;border:1px solid var(--line);border-radius:12px;background:#fff;color:var(--ink);font-weight:700}button:focus-visible,input:focus-visible,#quiz-scroll:focus-visible,summary:focus-visible{outline:3px solid var(--blue);outline-offset:3px}button[aria-pressed="true"]{background:var(--blue);border-color:var(--blue);color:#fff}button:disabled{opacity:.6;cursor:wait}
+body>header,body>footer{flex:none}header{display:flex;align-items:center;justify-content:space-between;gap:24px;padding:12px 24px;background:var(--paper);border-bottom:1px solid var(--line)}h1{min-width:0;font-size:24px;line-height:1.25;margin:0;overflow-wrap:anywhere}nav{display:flex;gap:10px;flex-shrink:0}
+body>main{flex:1;display:flex;flex-direction:column;min-width:0;min-height:0;overflow:auto}#lesson-frame{display:block;width:100%;height:470px;border:0;background:var(--paper);flex:none}
+#quiz{flex:1;min-height:0;display:flex;flex-direction:column;overflow:hidden;padding:16px 24px}#quiz h2{font-size:24px;line-height:1.4;margin:0 0 4px}.muted{color:var(--muted);font-size:16px;line-height:1.5;margin:0 0 12px}
+#quiz-scroll{flex:1;min-height:0;overflow:auto;overscroll-behavior:contain;scrollbar-gutter:stable;padding:3px 5px 6px 3px}#questions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;align-content:start;align-items:start}
+.question-card{min-width:0;border:1px solid var(--line);border-radius:var(--radius);background:var(--paper);padding:16px}fieldset{min-width:0;width:100%;border:0;padding:0;margin:0}legend{width:100%;font-weight:750;line-height:1.5;padding:0;margin:0 0 10px;overflow-wrap:anywhere}
+.choice{display:flex;align-items:center;gap:12px;min-height:48px;padding:6px 10px;border-radius:10px;cursor:pointer;overflow-wrap:anywhere}.choice:has(input:checked){background:#e5eaff}.choice input{width:20px;height:20px;flex:none;accent-color:var(--blue)}.question-feedback{color:var(--muted);margin:12px 0 0;overflow-wrap:anywhere}.question-feedback:empty{display:none}
+.quiz-actions{flex:none;display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-top:12px}#check-test{background:var(--blue);color:#fff;border-color:var(--blue)}#result{flex:none;font-size:16px;line-height:1.5;font-weight:700;margin:8px 0 0;overflow-wrap:anywhere}#result:empty{display:none}#practice-summary{font-size:16px;line-height:1.6;margin-top:16px;padding:0 4px}#practice-summary p{margin:0 0 10px}
+footer{padding:10px 24px;color:var(--muted);font-size:14px;border-top:1px solid var(--line);max-height:40dvh;overflow:auto}footer details{margin-top:2px}footer summary{cursor:pointer;min-height:32px}footer details p{margin:8px 0}[hidden]{display:none!important}
+@media(max-width:750px){header{padding:10px 16px;gap:12px;flex-wrap:wrap}#questions{grid-template-columns:1fr}#quiz{padding:12px 16px}footer{padding:8px 16px}h1{font-size:22px}button{padding:8px 14px}}
+@media(max-height:700px){header{padding-top:8px;padding-bottom:8px}#quiz{padding-top:10px;padding-bottom:10px}#quiz h2{font-size:22px}.muted{margin-bottom:8px}.quiz-actions{margin-top:8px}footer{padding-top:6px;padding-bottom:6px}}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
 </style>
 </head>
 <body>
 <header><h1 id="lesson-title">互动专题</h1><nav aria-label="课程视图"><button type="button" id="explore-tab" aria-pressed="true">动手探索</button><button type="button" id="test-tab" aria-pressed="false">换个例子</button></nav></header>
 <main>
 <iframe id="lesson-frame" title="专题互动内容" sandbox="allow-scripts" referrerpolicy="no-referrer"></iframe>
-<section id="quiz" aria-labelledby="quiz-title" hidden><h2 id="quiz-title">换个例子，看看发现能不能用</h2><p class="muted">每题选一个答案，想改就点另一个选项。选好后点“检查答案”。也可以随时回到探索。</p><div id="questions"></div><div class="quiz-actions"><button type="button" id="check-test">检查答案</button><button type="button" id="reset-test" hidden>清空答案重做</button></div><p id="result" role="status" aria-live="polite"></p><div id="practice-summary" aria-live="polite" hidden></div></section>
+<section id="quiz" aria-labelledby="quiz-title" hidden><h2 id="quiz-title">换个例子，看看发现能不能用</h2><p class="muted">题目区可上下滚动。每题选一个答案，想改就点另一个选项；选齐后点“检查答案”。也可以随时回到探索。</p><div id="quiz-scroll" tabindex="0" role="region" aria-label="检查题、逐题反馈与本轮观察"><div id="questions"></div><div id="practice-summary" aria-live="polite" hidden></div></div><div class="quiz-actions"><button type="button" id="check-test">检查答案</button><button type="button" id="reset-test" hidden>清空答案重做</button></div><p id="result" role="status" aria-live="polite"></p></section>
 </main>
 <footer><span>独立练习 · 本次操作和选择仅保留在当前页面。</span><details id="adult-info"><summary>家长看这里：课程说明与修改</summary><p id="source-note"></p><p id="grade-note"></p><p>需要改难度、例子或界面？直接告诉制作这节课的 agent，由它修改并更新网址。</p><p id="review-note"></p><p id="delivery-note">可用期限以课程托管服务为准；需要确认或停止访问，请联系制作这节课的 agent。</p></details></footer>
 <script>
@@ -43,7 +52,7 @@ const answers = Object.create(null);
 let learned = false;
 let graded = false;
 function viewport() {
-  return {width:document.querySelector('body>main').clientWidth,height:Math.max(160,window.innerHeight-document.querySelector('body>header').getBoundingClientRect().height-document.querySelector('body>footer').getBoundingClientRect().height)};
+  return {width:document.querySelector('body>main').clientWidth,height:Math.max(160,document.querySelector('body>main').clientHeight)};
 }
 function send(type, payload) { frame.contentWindow?.postMessage({channel:'special-study',type,payload},'*'); }
 function updateViewport() { const available=viewport();frame.style.minHeight=available.height+'px';send('viewport',available); }
@@ -52,6 +61,7 @@ function showTest(show) {
   frame.hidden = show; quiz.hidden = !show;
   document.getElementById('explore-tab').setAttribute('aria-pressed',String(!show));
   document.getElementById('test-tab').setAttribute('aria-pressed',String(show));
+  document.querySelector('body>main').scrollTop = 0;
   updateViewport();
 }
 function clearFeedback(message='') {
@@ -64,14 +74,19 @@ function rememberFirstChecks(report) {
   if(!report.ok)return;
   for(const detail of report.details)if(!Object.hasOwn(firstChecks,detail.id))firstChecks[detail.id]=detail.correct;
 }
+function formatFeedback(correct, explanation) {
+  const prefix = correct ? /^(?:(?:这题|本题)?选对了|(?:回答|答案)?正确|答对了|对)[。！!：:]\s*/ : /^(?:(?:这题|本题)?还没选对|(?:回答|答案)?错误|答错了|不对|错)[。！!：:]\s*/;
+  const reason = explanation.trim().replace(prefix, '');
+  return (correct ? '这题选对了。' : '这题还没选对。') + (reason ? ' ' + reason : '');
+}
 function renderResult(report) {
   if (!report.ok) { result.textContent = report.error; return; }
   graded = true;
   resetButton.hidden = false;
   rememberFirstChecks(report);
   const correct = report.details.filter(detail=>detail.correct).length;
-  result.textContent = `本次答对 ${correct}/${report.details.length} 题（${report.score} 分）。请看各题说明。想改答案，直接点另一个选项，再点“检查答案”。`;
-  for (const detail of report.details) document.getElementById('feedback-'+detail.id).textContent = `${detail.correct?'这题选对了。':'这题还没选对。'} ${detail.explanation}`;
+  result.textContent = `本次答对 ${correct}/${report.details.length} 题（${report.score} 分）。题目区已展开说明；可改选后重新检查。`;
+  for (const detail of report.details) document.getElementById('feedback-'+detail.id).textContent = formatFeedback(detail.correct, detail.explanation);
   const byId=new Map(report.details.map(detail=>[detail.id,detail]));
   const lines=(lesson.practiceCoverage||[]).map(dimension=>{
     const checked=dimension.testIds.map(id=>byId.get(id)).filter(Boolean);
@@ -88,6 +103,7 @@ function renderResult(report) {
   } else practiceSummary.hidden=true;
 }
 for (const [index,question] of lesson.test.questions.entries()) {
+  const card = document.createElement('div');card.className='question-card';
   const fieldset = document.createElement('fieldset');
   const legend = document.createElement('legend');legend.textContent=`${index+1}. ${question.prompt}`;fieldset.append(legend);
   for (const [optionIndex,option] of question.options.entries()) {
@@ -105,7 +121,7 @@ for (const [index,question] of lesson.test.questions.entries()) {
     });
     const span=document.createElement('span');span.textContent=option;label.append(input,span);fieldset.append(label);
   }
-  const feedback=document.createElement('p');feedback.id='feedback-'+question.id;feedback.className='question-feedback';fieldset.append(feedback);document.getElementById('questions').append(fieldset);
+  const feedback=document.createElement('p');feedback.id='feedback-'+question.id;feedback.className='question-feedback';fieldset.append(feedback);card.append(fieldset);document.getElementById('questions').append(card);
 }
 document.getElementById('explore-tab').addEventListener('click',()=>showTest(false));
 document.getElementById('test-tab').addEventListener('click',()=>showTest(true));
