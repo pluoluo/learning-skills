@@ -25,7 +25,7 @@ The private manifest records the URL, expiry, bind address, process ID and stop 
 
 Hosting availability is independent of learning duration. The --hours setting controls how long the temporary web service runs; it is not a lesson timer, recommended study time or reason to set a ten-minute activity limit.
 
-The host reads the built page for every request. Publish revisions atomically: compile and build to a new private directory, then use serve.mjs --update /path/to/private/delivery.json --lesson /path/to/new-build/index.html. Existing open sessions retain their page; reopening loads the revised lesson. The route and expiry stay the same. To extend the temporary service use --extend /path/to/private/delivery.json --hours 4; this retains its route. The standalone player does not migrate or persist practice state.
+The host reads the built page for every request. Publish revisions atomically: compile and build to a new private directory, then use serve.mjs --update /path/to/private/delivery.json --lesson /path/to/new-build/index.html. Existing open sessions retain their page; reopening loads the revised lesson. The route and expiry stay the same. To extend the temporary service use --extend /path/to/private/delivery.json --hours 4; this retains its route. The standalone player does not migrate or persist practice state. Local learning records can be explicitly downloaded by the learner/adult as readable HTML; this is different from author-source handoff. Remind users that refresh/reopening clears in-page records and that downloads are not automatic server storage.
 
 ## Verify and record evidence
 

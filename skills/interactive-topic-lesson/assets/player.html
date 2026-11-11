@@ -8,25 +8,27 @@
 <style>
 :root{color-scheme:light;--page:#e8ecf5;--paper:#fffdf8;--ink:#1e293b;--muted:#475569;--line:#cbd5e1;--blue:#334db5;--orange:#b9471e;--radius:16px}
 *{box-sizing:border-box}body{margin:0;background:var(--page);color:var(--ink);font:18px/1.6 "PingFang SC","Microsoft YaHei",system-ui,sans-serif;height:100dvh;display:flex;flex-direction:column;overflow:hidden}
-button,input{font:inherit}button{min-height:44px;padding:8px 20px;cursor:pointer;border:1px solid var(--line);border-radius:12px;background:#fff;color:var(--ink);font-weight:700}button:focus-visible,input:focus-visible,#quiz-scroll:focus-visible,summary:focus-visible{outline:3px solid var(--blue);outline-offset:3px}button[aria-pressed="true"]{background:var(--blue);border-color:var(--blue);color:#fff}button:disabled{opacity:.6;cursor:wait}
+button,input{font:inherit}button{min-height:44px;padding:8px 20px;cursor:pointer;border:1px solid var(--line);border-radius:12px;background:#fff;color:var(--ink);font-weight:700}button:focus-visible,input:focus-visible,#quiz-scroll:focus-visible,#record-scroll:focus-visible,summary:focus-visible{outline:3px solid var(--blue);outline-offset:3px}button[aria-pressed="true"]{background:var(--blue);border-color:var(--blue);color:#fff}button:disabled{opacity:.6;cursor:wait}
 body>header,body>footer{flex:none}header{display:flex;align-items:center;justify-content:space-between;gap:24px;padding:12px 24px;background:var(--paper);border-bottom:1px solid var(--line)}h1{min-width:0;font-size:24px;line-height:1.25;margin:0;overflow-wrap:anywhere}nav{display:flex;gap:10px;flex-shrink:0}
 body>main{flex:1;display:flex;flex-direction:column;min-width:0;min-height:0;overflow:auto}#lesson-frame{display:block;width:100%;height:470px;border:0;background:var(--paper);flex:none}
 #quiz{flex:1;min-height:0;display:flex;flex-direction:column;overflow:hidden;padding:16px 24px}#quiz h2{font-size:24px;line-height:1.4;margin:0 0 4px}.muted{color:var(--muted);font-size:16px;line-height:1.5;margin:0 0 12px}
 #quiz-scroll{flex:1;min-height:0;overflow:auto;overscroll-behavior:contain;scrollbar-gutter:stable;padding:3px 5px 6px 3px}#questions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;align-content:start;align-items:start}
-.question-card{min-width:0;border:1px solid var(--line);border-radius:var(--radius);background:var(--paper);padding:16px}fieldset{min-width:0;width:100%;border:0;padding:0;margin:0}legend{width:100%;font-weight:750;line-height:1.5;padding:0;margin:0 0 10px;overflow-wrap:anywhere}
+.question-card:last-child:nth-child(odd){grid-column:1/-1}.question-card{min-width:0;border:1px solid var(--line);border-radius:var(--radius);background:var(--paper);padding:16px}fieldset{min-width:0;width:100%;border:0;padding:0;margin:0}legend{width:100%;font-weight:750;line-height:1.5;padding:0;margin:0 0 10px;overflow-wrap:anywhere}
 .choice{display:flex;align-items:center;gap:12px;min-height:48px;padding:6px 10px;border-radius:10px;cursor:pointer;overflow-wrap:anywhere}.choice:has(input:checked){background:#e5eaff}.choice input{width:20px;height:20px;flex:none;accent-color:var(--blue)}.question-feedback{color:var(--muted);margin:12px 0 0;overflow-wrap:anywhere}.question-feedback:empty{display:none}
 .quiz-actions{flex:none;display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-top:12px}#check-test{background:var(--blue);color:#fff;border-color:var(--blue)}#result{flex:none;font-size:16px;line-height:1.5;font-weight:700;margin:8px 0 0;overflow-wrap:anywhere}#result:empty{display:none}#practice-summary{font-size:16px;line-height:1.6;margin-top:16px;padding:0 4px}#practice-summary p{margin:0 0 10px}
 footer{padding:10px 24px;color:var(--muted);font-size:14px;border-top:1px solid var(--line);max-height:40dvh;overflow:auto}footer details{margin-top:2px}footer summary{cursor:pointer;min-height:32px}footer details p{margin:8px 0}[hidden]{display:none!important}
+#record-view{flex:1;min-height:0;display:flex;flex-direction:column;overflow:hidden;padding:16px 24px}#record-view h2{font-size:24px;line-height:1.4;margin:0 0 4px}#record-scroll{flex:1;min-height:0;overflow:auto;overscroll-behavior:contain;padding:4px;scrollbar-gutter:stable}.evidence-entry{max-width:76ch;padding:16px 0;border-bottom:1px solid var(--line)}.evidence-entry h3{font-size:20px;margin:0 0 6px}.evidence-entry p{margin:6px 0}.evidence-entry pre{font:inherit;white-space:pre-wrap;overflow-wrap:anywhere;background:var(--paper);padding:10px;margin:4px 0 10px;border-radius:8px}.evidence-entry ul{padding-left:24px}.evidence-values{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}.evidence-values p{font-size:15px;color:var(--muted)}.evidence-text{grid-column:1/-1}.record-meta{font-size:15px;color:var(--muted)}.record-state{font-weight:700}.record-actions{flex:none;padding-top:10px}#record-notice{font-size:15px;margin:8px 0 0;color:var(--muted)}
 @media(max-width:750px){header{padding:10px 16px;gap:12px;flex-wrap:wrap}#questions{grid-template-columns:1fr}#quiz{padding:12px 16px}footer{padding:8px 16px}h1{font-size:22px}button{padding:8px 14px}}
 @media(max-height:700px){header{padding-top:8px;padding-bottom:8px}#quiz{padding-top:10px;padding-bottom:10px}#quiz h2{font-size:22px}.muted{margin-bottom:8px}.quiz-actions{margin-top:8px}footer{padding-top:6px;padding-bottom:6px}}
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
 </style>
 </head>
 <body>
-<header><h1 id="lesson-title">互动专题</h1><nav aria-label="课程视图"><button type="button" id="explore-tab" aria-pressed="true">动手探索</button><button type="button" id="test-tab" aria-pressed="false">换个例子</button></nav></header>
+<header><h1 id="lesson-title">互动专题</h1><nav aria-label="课程视图"><button type="button" id="explore-tab" aria-pressed="true">动手探索</button><button type="button" id="test-tab" aria-pressed="false">辨析核对</button><button type="button" id="records-tab" aria-pressed="false" hidden>本次记录</button></nav></header>
 <main>
 <iframe id="lesson-frame" title="专题互动内容" sandbox="allow-scripts" referrerpolicy="no-referrer"></iframe>
-<section id="quiz" aria-labelledby="quiz-title" hidden><h2 id="quiz-title">换个例子，看看发现能不能用</h2><p class="muted">题目区可上下滚动。每题选一个答案，想改就点另一个选项；选齐后点“检查答案”。也可以随时回到探索。</p><div id="quiz-scroll" tabindex="0" role="region" aria-label="检查题、逐题反馈与本轮观察"><div id="questions"></div><div id="practice-summary" aria-live="polite" hidden></div></div><div class="quiz-actions"><button type="button" id="check-test">检查答案</button><button type="button" id="reset-test" hidden>清空答案重做</button></div><p id="result" role="status" aria-live="polite"></p></section>
+<section id="quiz" aria-labelledby="quiz-title" hidden><h2 id="quiz-title">辨析核对</h2><p class="muted">这里只检查给定选项中的识别与辨析，不评价你的构造和解释。题目区可上下滚动，选齐后核对。</p><div id="quiz-scroll" tabindex="0" role="region" aria-label="检查题、逐题反馈与本轮观察"><div id="questions"></div><div id="practice-summary" aria-live="polite" hidden></div></div><div class="quiz-actions"><button type="button" id="check-test">检查答案</button><button type="button" id="reset-test" hidden>清空答案重做</button></div><p id="result" role="status" aria-live="polite"></p></section>
+<section id="record-view" aria-labelledby="record-title" hidden><h2 id="record-title">本次学习记录</h2><p class="muted">回看作品、理由与修改。数值条件核对和待人工复核分开显示，不提供总分或掌握判断。</p><div id="record-scroll" tabindex="0" role="region" aria-label="作品、解释与修改记录"><p id="record-empty">还没有保存作品或理由。回到学习活动，使用课件中的记录按钮。</p><div id="evidence-list"></div></div><div class="record-actions"><button type="button" id="export-record" disabled>保存本次记录</button><p id="record-notice">记录只保留在当前页面。点击保存会下载到本设备，刷新会清空；不会发送给服务器。</p></div></section>
 </main>
 <footer><span>独立练习 · 本次操作和选择仅保留在当前页面。</span><details id="adult-info"><summary>家长看这里：课程说明与修改</summary><p id="source-note"></p><p id="grade-note"></p><p>需要改难度、例子或界面？直接告诉制作这节课的 agent，由它修改并更新网址。</p><p id="review-note"></p><p id="delivery-note">可用期限以课程托管服务为准；需要确认或停止访问，请联系制作这节课的 agent。</p></details></footer>
 <script>
@@ -50,6 +52,15 @@ const resetButton = document.getElementById('reset-test');
 const practiceSummary = document.getElementById('practice-summary');
 const firstChecks = Object.create(null);
 const answers = Object.create(null);
+const evidenceRecords = [];
+const evidenceTasks = lesson.evidenceTasks || [];
+const canvasMode = lesson.presentation?.mode === 'canvas';
+const hasChecks = lesson.test.questions.length > 0;
+const recordView = document.getElementById('record-view');
+const recordsTab = document.getElementById('records-tab');
+document.getElementById('test-tab').hidden = !hasChecks;
+recordsTab.hidden = evidenceTasks.length === 0;
+if(canvasMode){document.getElementById('explore-tab').textContent='返回学习';document.getElementById('explore-tab').hidden=true;}
 let learned = false;
 let graded = false;
 function viewport() {
@@ -57,14 +68,19 @@ function viewport() {
 }
 function send(type, payload) { frame.contentWindow?.postMessage({channel:'special-study',type,payload},'*'); }
 function updateViewport() { const available=viewport();frame.style.minHeight=available.height+'px';send('viewport',available); }
-function context() { return {learned,archived:false,preview:true,standalone:true,capabilities:{requestTest:true},viewport:viewport(),test:{passScore:lesson.test.passScore,questions:publicQuestions(lesson.test.questions)}}; }
-function showTest(show) {
-  frame.hidden = show; quiz.hidden = !show;
-  document.getElementById('explore-tab').setAttribute('aria-pressed',String(!show));
-  document.getElementById('test-tab').setAttribute('aria-pressed',String(show));
-  document.querySelector('body>main').scrollTop = 0;
+function context() { return {learned,archived:false,preview:true,standalone:true,capabilities:{requestTest:hasChecks,evidence:evidenceTasks.length>0},evidenceTasks:evidenceTasks.map(task=>({id:task.id,title:task.title,kind:task.kind,evaluationType:task.evaluation.type})),viewport:viewport(),test:{passScore:lesson.test.passScore,questions:publicQuestions(lesson.test.questions)}}; }
+function showView(view) {
+  if(view==='checks'&&!hasChecks)return;
+  frame.hidden=view!=='canvas';quiz.hidden=view!=='checks';recordView.hidden=view!=='records';
+  document.getElementById('explore-tab').setAttribute('aria-pressed',String(view==='canvas'));
+  document.getElementById('explore-tab').hidden=canvasMode&&view==='canvas';
+  document.getElementById('test-tab').setAttribute('aria-pressed',String(view==='checks'));
+  recordsTab.setAttribute('aria-pressed',String(view==='records'));
+  if(view==='records')renderEvidence();
+  document.querySelector('body>main').scrollTop=0;
   updateViewport();
 }
+function showTest(show) { showView(show?'checks':'canvas'); }
 function clearFeedback(message='') {
   result.textContent = message; graded = false;
   resetButton.hidden = true;
@@ -86,7 +102,7 @@ function renderResult(report) {
   resetButton.hidden = false;
   rememberFirstChecks(report);
   const correct = report.details.filter(detail=>detail.correct).length;
-  result.textContent = `本次答对 ${correct}/${report.details.length} 题（${report.score} 分）。题目区已展开说明；可改选后重新检查。`;
+  result.textContent = `本页辨析符合 ${correct}/${report.details.length} 题。仅反映这些选项的识别；可改选后重新核对。`;
   for (const detail of report.details) document.getElementById('feedback-'+detail.id).textContent = formatFeedback(detail.correct, detail.explanation);
   const byId=new Map(report.details.map(detail=>[detail.id,detail]));
   const lines=(lesson.practiceCoverage||[]).map(dimension=>{
@@ -97,7 +113,7 @@ function renderResult(report) {
   });
   practiceSummary.replaceChildren();
   if(lines.length){
-    const heading=document.createElement('p');heading.textContent='本轮练习观察（不代表已掌握整个专题）';practiceSummary.append(heading);
+    const heading=document.createElement('p');heading.textContent='本页选项辨析记录（不评价构造、独立解释或整体掌握）';practiceSummary.append(heading);
     for(const line of lines){const p=document.createElement('p');p.textContent=line;practiceSummary.append(p);}
     const note=document.createElement('p');note.textContent='这里只统计本页这些检查题。看过解释后改对、重做，不会改写首次检查记录；其他练习与未覆盖情形需另看。';practiceSummary.append(note);
     practiceSummary.hidden=false;
@@ -126,11 +142,46 @@ for (const [index,question] of lesson.test.questions.entries()) {
 }
 document.getElementById('explore-tab').addEventListener('click',()=>showTest(false));
 document.getElementById('test-tab').addEventListener('click',()=>showTest(true));
+recordsTab.addEventListener('click',()=>showView('records'));
+document.getElementById('export-record').addEventListener('click',exportEvidence);
 document.getElementById('check-test').addEventListener('click',()=>{
   const report=gradeAnswers(lesson.test,answers);renderResult(report);
   if(!report.ok){const missing=lesson.test.questions.find(question=>!Object.hasOwn(answers,question.id));if(missing){result.textContent=`第 ${lesson.test.questions.indexOf(missing)+1} 题还没选。选好后点“检查答案”。`;document.getElementsByName(missing.id)[0]?.focus();}}
 });
 resetButton.addEventListener('click',()=>{Object.keys(answers).forEach(key=>delete answers[key]);document.querySelectorAll('input[type=radio]').forEach(input=>input.checked=false);clearFeedback('答案已清空。每题选一个答案，再点“检查答案”。本页的首次检查记录会保留，重做不算新的首次作答。');});
+function renderEvidence() {
+  const list=document.getElementById('evidence-list');list.replaceChildren();
+  document.getElementById('record-empty').hidden=evidenceRecords.length>0;
+  document.getElementById('export-record').disabled=evidenceRecords.length===0;
+  for(const record of evidenceRecords){
+    const task=evidenceTasks.find(item=>item.id===record.taskId);
+    const entry=document.createElement('article');entry.className='evidence-entry';entry.dataset.sequence=record.sequence;
+    const heading=document.createElement('h3');heading.textContent=record.title+' · 第'+record.attempt+'次';entry.append(heading);
+    const meta=document.createElement('p');meta.className='record-meta';meta.textContent=(record.attempt===1?'首次保存':'后续修改或再次核对')+' · '+new Date(record.timestamp).toLocaleString('zh-CN',{hour12:false});entry.append(meta);
+    const status=document.createElement('p');status.className='record-state';status.textContent=record.result.status==='pending_review'?'待人工复核：未自动判断表达或推理是否成立。':record.result.status==='invalid'?'尚不能核对：'+record.result.message:record.result.outcome==='met'?'已核对：符合本次声明的数值条件。':'已核对：有数值条件尚未符合。';entry.append(status);
+    const values=document.createElement('div');values.className='evidence-values';
+    for(const [key,value]of Object.entries(record.response)){
+      const field=document.createElement('div');if(typeof value!=='number')field.className='evidence-text';
+      const label=document.createElement('p');label.textContent=task.evaluation.fields?.find(field=>field.key===key)?.label??key;
+      const content=document.createElement('pre');content.textContent=typeof value==='string'?value||'（尚未填写）':JSON.stringify(value,null,2);field.append(label,content);values.append(field);
+    }
+    entry.append(values);
+    const criteria=document.createElement('ul');
+    for(const criterion of record.result.criteria??[]){const li=document.createElement('li');li.textContent=typeof criterion==='string'?criterion:criterion.label+'：'+(criterion.met?'符合':'尚未符合')+'（'+criterion.left+' / '+criterion.right+'）';criteria.append(li);}if(criteria.children.length)entry.append(criteria);
+    const support=document.createElement('p');support.className='record-meta';support.textContent=record.assistance===null?'帮助情况：课件未报告，不能当作独立完成。':'课件报告：提示 '+(record.assistance.hintIds.join('、')||'未展开')+'；解释 '+(record.assistance.explanationViewed?'已展示':'未展示')+'。这不代表没有其他帮助。';entry.append(support);
+    if(record.result.status==='checked'){const limit=document.createElement('p');limit.className='record-meta';limit.textContent='只核对上述数值条件，未评价文字理由或是否掌握。';entry.append(limit);}
+    list.append(entry);
+  }
+}
+function exportEvidence() {
+  if(!evidenceRecords.length)return;
+  const escape=value=>String(value).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;');
+  const record={format:'interactive-topic-lesson.record.v1',artifactSha256:lesson.artifactSha256,title:lesson.title,exportedAt:new Date().toISOString(),scope:'当前页面的本次记录；非权威学习档案，未评价整体掌握。',records:evidenceRecords};
+  const data=JSON.stringify(record).replaceAll('<','\\u003c').replaceAll('\u2028','\\u2028').replaceAll('\u2029','\\u2029');
+  const output='<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>'+escape(lesson.title)+' · 本次学习记录</title><style>body{max-width:76ch;margin:24px auto;padding:0 20px;font:18px/1.6 system-ui;color:#1e293b}article{padding:18px 0;border-bottom:1px solid #cbd5e1}pre{font:inherit;white-space:pre-wrap;overflow-wrap:anywhere}h3{margin-bottom:6px}.record-meta{font-size:15px;color:#475569}.evidence-values{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}.evidence-text{grid-column:1/-1}</style><h1>'+escape(lesson.title)+'</h1><p>本次学习记录。作品和理由供复核；数值核对只反映声明的条件，不代表整体掌握。</p>'+document.getElementById('evidence-list').innerHTML+'<script type="application/json" id="learning-record">'+data+'<\/script></html>';
+  const objectUrl=URL.createObjectURL(new Blob([output],{type:'text/html;charset=utf-8'}));
+  const link=document.createElement('a');link.href=objectUrl;link.download='本次学习记录.html';link.click();setTimeout(()=>URL.revokeObjectURL(objectUrl),1000);
+}
 window.addEventListener('message',event=>{
   if(event.source!==frame.contentWindow||!event.data||event.data.channel!=='special-study')return;
   const {type,payload}=event.data;
@@ -144,6 +195,8 @@ window.addEventListener('message',event=>{
   if(type==='submit'){const report=gradeAnswers(lesson.test,payload);rememberFirstChecks(report);send(report.ok?'result':'error',report.ok?report:{message:report.error});}
   if(type==='return')showTest(false);
   if(type==='request-test')showTest(true);
+  if(type==='evidence'){const report=appendEvidence(evidenceTasks,evidenceRecords,payload);if(report.ok)renderEvidence();send('evidence-result',report);}
+  if(type==='request-records'&&evidenceTasks.length)showView('records');
   if(type==='tts'||type==='asr')send(type+'-error',{id:payload?.id,message:'独立版未接入语音服务，请使用文字与操作。'});
 });
 frame.addEventListener('load',()=>{updateViewport();send('context',context());});

@@ -3,6 +3,7 @@ import { mkdir, readFile, writeFile, access } from 'node:fs/promises';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { readLesson, validateLesson, isolatedCanvas, safeJson, gradeAnswers, publicQuestions } from './lib.mjs';
+import { evaluateEvidence, appendEvidence } from './evidence.mjs';
 import { reviewScaffold, validateReview, publicReview } from './review.mjs';
 
 export async function buildLesson(lesson, output, { force = false, review } = {}) {
@@ -16,10 +17,10 @@ export async function buildLesson(lesson, output, { force = false, review } = {}
   }
   const template = await readFile(new URL('../assets/player.html', import.meta.url), 'utf8');
   const license = await readFile(new URL('../LICENSE', import.meta.url), 'utf8');
-  const practiceCoverage = lesson.learningDesign?.coverage.map(({id,focus,testIds})=>({id,focus,testIds:[...testIds]})) ?? [];
-  const payload = { artifactSha256: validation.artifactSha256, title: lesson.title, introduction: lesson.content.introduction, sourceNote: lesson.content.sourceNote, gradeNote: lesson.content.gradeNote, html: isolatedCanvas(lesson.content.canvas.html), test: lesson.content.test, practiceCoverage, review: publicReview(checkedReview) };
+  const practiceCoverage = lesson.learningDesign?.coverage.map(({id,focus,testIds})=>({id,focus,testIds:[...(testIds??[])]})).filter(item=>item.testIds.length) ?? [];
+  const payload = { artifactSha256: validation.artifactSha256, title: lesson.title, introduction: lesson.content.introduction, sourceNote: lesson.content.sourceNote, gradeNote: lesson.content.gradeNote, html: isolatedCanvas(lesson.content.canvas.html), test: lesson.content.test ?? {passScore:80,questions:[]}, evidenceTasks:lesson.evidenceTasks??[], presentation:{mode:lesson.presentation?.mode??(Number(lesson.skillVersion.split('.')[0])>0||Number(lesson.skillVersion.split('.')[1])>=5?'canvas':'tabs')}, practiceCoverage, review: publicReview(checkedReview) };
   const notice = `<!--\nStandalone player runtime: MIT License. Lesson content retains its respective rights.\n\n${license}-->\n`;
-  const html = notice + template.replace('/*__GRADING__*/', () => `const plain = value => value !== null && typeof value === 'object' && !Array.isArray(value);\n${gradeAnswers.toString()}\n${publicQuestions.toString()}`).replace('/*__LESSON__*/null', () => safeJson(payload));
+  const html = notice + template.replace('/*__GRADING__*/', () => `const plain = value => value !== null && typeof value === 'object' && !Array.isArray(value);\n${gradeAnswers.toString()}\n${publicQuestions.toString()}\n${evaluateEvidence.toString()}\n${appendEvidence.toString()}`).replace('/*__LESSON__*/null', () => safeJson(payload));
   await mkdir(output, { recursive: true });
   const contents = [html, JSON.stringify(lesson, null, 2) + '\n', JSON.stringify(lesson.content, null, 2) + '\n', JSON.stringify(validation, null, 2) + '\n', license, JSON.stringify(checkedReview, null, 2) + '\n'];
   for (const [index, file] of files.entries()) await writeFile(path.join(output, file), contents[index], { flag: force ? 'w' : 'wx' });

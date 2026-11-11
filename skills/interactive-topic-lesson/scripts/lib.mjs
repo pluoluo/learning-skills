@@ -1,6 +1,7 @@
 import { createHash } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
 import vm from 'node:vm';
+import { validateEvidenceTasks } from './evidence.mjs';
 
 export const FORMAT = 'interactive-topic-lesson.v1';
 export const MAX_BYTES = 1_000_000;
@@ -57,6 +58,12 @@ export function validateLesson(lesson) {
   const design = lesson.learningDesign;
   const version = typeof lesson.skillVersion === 'string' ? lesson.skillVersion.split('.').map(Number) : [];
   if (version[0] > 0 || version[0] === 0 && version[1] >= 3) check(plain(design), '0.3+ lessons require learningDesign');
+  const flexible = version[0] > 0 || version[0] === 0 && version[1] >= 5;
+  const evidenceTasks = lesson.evidenceTasks ?? [];
+  if (lesson.evidenceTasks !== undefined) check(flexible, 'evidenceTasks require skillVersion 0.5.0 or later');
+  errors.push(...validateEvidenceTasks(evidenceTasks));
+  const evidenceIds = new Set(Array.isArray(evidenceTasks) ? evidenceTasks.filter(plain).map(task=>task.id) : []);
+  if (lesson.presentation !== undefined) check(plain(lesson.presentation) && ['canvas','tabs'].includes(lesson.presentation.mode) && Object.keys(lesson.presentation).every(key=>key==='mode'), 'presentation requires mode:canvas or mode:tabs');
   const objectives = Array.isArray(lesson.objectives) ? lesson.objectives : [];
   check(objectives.length >= 1 && objectives.length <= 5, 'Provide 1–5 objectives');
   const content = plain(lesson.content) ? lesson.content : {};
@@ -66,9 +73,13 @@ export function validateLesson(lesson) {
   const html = plain(content.canvas) ? content.canvas.html : undefined;
   check(text(html, 500_000) && Buffer.byteLength(html ?? '') <= 500_000, 'canvas.html requires 1–500000 characters and at most 500000 UTF-8 bytes');
   const test = plain(content.test) ? content.test : {};
-  check(Number.isInteger(test.passScore) && test.passScore >= 60 && test.passScore <= 100, 'passScore must be an integer from 60 to 100');
   const questions = Array.isArray(test.questions) ? test.questions : [];
-  check(questions.length >= 1 && questions.length <= 50, 'Provide 1–50 formal questions');
+  if (content.test !== undefined || !flexible) {
+    check(plain(content.test), 'content.test must be an object');
+    check(Number.isInteger(test.passScore) && test.passScore >= 60 && test.passScore <= 100, 'passScore must be an integer from 60 to 100');
+    check(questions.length >= 1 && questions.length <= 50, 'Provide 1–50 formal questions, or omit content.test in 0.5+');
+  }
+  check(questions.length + evidenceIds.size > 0, 'Provide a check or an evidence task for the learning objectives');
   const questionIds = new Set();
   for (const [index, question] of questions.entries()) {
     if (!plain(question)) { errors.push(`Question ${index + 1} must be an object`); continue; }
@@ -85,40 +96,49 @@ export function validateLesson(lesson) {
     check(question.diagram === undefined, `Question ${question.id}: portable v1 does not yet support host-specific diagram objects`);
   }
   const objectiveIds = new Set();
-  const covered = new Set();
+  const covered = new Set(), coveredEvidence = new Set();
   for (const [index, objective] of objectives.entries()) {
     if (!plain(objective)) { errors.push(`Objective ${index + 1} must be an object`); continue; }
     check(id(objective.id) && !objectiveIds.has(objective.id), `Objective ${index + 1} needs a valid unique ID`);
     objectiveIds.add(objective.id);
     for (const key of ['goal', 'interaction', 'misconception', 'feedback']) check(text(objective[key], 500), `Objective ${objective.id}: missing ${key}`);
-    const refs = objective.testIds;
-    check(Array.isArray(refs) && refs.length > 0 && new Set(refs).size === refs.length && refs.every(value => questionIds.has(value)), `Objective ${objective.id}: testIds must reference existing questions without duplicates`);
+    const refs = objective.testIds ?? (flexible ? [] : undefined), records = objective.evidenceIds ?? [];
+    check(Array.isArray(refs) && (flexible || refs.length > 0) && new Set(refs).size === refs.length && refs.every(value => questionIds.has(value)), `Objective ${objective.id}: testIds must reference existing questions without duplicates`);
+    check(Array.isArray(records) && new Set(records).size === records.length && records.every(value=>evidenceIds.has(value)), `Objective ${objective.id}: evidenceIds must reference declared tasks`);
+    if (flexible) check((Array.isArray(refs)?refs.length:0)+(Array.isArray(records)?records.length:0)>0, `Objective ${objective.id}: map a check or evidence task`);
     if (Array.isArray(refs)) refs.forEach(value => covered.add(value));
+    if (Array.isArray(records)) records.forEach(value => coveredEvidence.add(value));
   }
   check(questions.every(question => covered.has(question?.id)), 'Every question must map to an objective');
+  check([...evidenceIds].every(value=>coveredEvidence.has(value)), 'Every evidence task must map to an objective');
   if (design !== undefined) {
     check(plain(design), 'learningDesign must be an object');
     check(['training', 'exploration'].includes(design?.mode), 'learningDesign.mode must be training or exploration');
     for (const [key, max] of [['strategy',500],['progression',1000],['evidencePolicy',1000]]) check(text(design?.[key], max), `learningDesign needs ${key} (1–${max} characters)`);
     const coverage = Array.isArray(design?.coverage) ? design.coverage : [];
     check(coverage.length >= 1 && coverage.length <= 20, 'learningDesign.coverage needs 1–20 scoped dimensions (a resource limit, not a quota)');
-    const dimensionIds = new Set(), designedQuestions = new Set();
+    const dimensionIds = new Set(), designedQuestions = new Set(), designedEvidence = new Set();
     for (const [index, dimension] of coverage.entries()) {
       if (!plain(dimension)) { errors.push(`Coverage ${index+1} must be an object`); continue; }
       check(id(dimension.id) && !dimensionIds.has(dimension.id), `Coverage ${index+1} needs a valid unique ID`);
       dimensionIds.add(dimension.id);
       for (const [key,max] of [['focus',300],['contrast',500],['practice',500]]) check(text(dimension[key],max), `Coverage ${dimension.id}: missing ${key}`);
-      check(Array.isArray(dimension.testIds) && dimension.testIds.length > 0 && new Set(dimension.testIds).size === dimension.testIds.length && dimension.testIds.every(value => questionIds.has(value)), `Coverage ${dimension.id}: testIds must reference existing questions without duplicates`);
-      if (Array.isArray(dimension.testIds)) dimension.testIds.forEach(value=>designedQuestions.add(value));
+      const refs=dimension.testIds ?? (flexible?[]:undefined), records=dimension.evidenceIds ?? [];
+      check(Array.isArray(refs) && (flexible || refs.length>0) && new Set(refs).size===refs.length && refs.every(value=>questionIds.has(value)), `Coverage ${dimension.id}: testIds must reference existing questions without duplicates`);
+      check(Array.isArray(records) && new Set(records).size===records.length && records.every(value=>evidenceIds.has(value)), `Coverage ${dimension.id}: evidenceIds must reference declared tasks`);
+      if(flexible)check((Array.isArray(refs)?refs.length:0)+(Array.isArray(records)?records.length:0)>0, `Coverage ${dimension.id}: map a check or evidence task`);
+      if(Array.isArray(refs))refs.forEach(value=>designedQuestions.add(value));
+      if(Array.isArray(records))records.forEach(value=>designedEvidence.add(value));
     }
     check(questions.every(question=>designedQuestions.has(question?.id)), 'Every question must map to a learningDesign coverage dimension');
+    check([...evidenceIds].every(value=>designedEvidence.has(value)), 'Every evidence task must map to a learningDesign coverage dimension');
   }
   if (typeof html === 'string') errors.push(...inspectCanvas(html, objectives, questions));
   return {
     ok: errors.length === 0,
     artifactSha256: digest(lesson),
     errors,
-    warnings: ['Static checks do not establish browser behavior, subject-matter correctness or learning effectiveness.'],
+    warnings: ['Static checks do not establish browser behavior, subject-matter correctness or learning effectiveness.', ...(flexible && (evidenceIds.size || !content.test) ? ['Evidence tasks live at the lesson root; special-study.json alone is not a complete legacy-host import. An evidence-aware host adapter is required.'] : [])],
     checks: { structure: errors.length === 0, classicScriptSyntaxInspected: typeof html === 'string', browser: 'not_run', subjectReview: 'not_run', learnerEffectiveness: 'not_evaluated' },
   };
 }
@@ -128,6 +148,7 @@ export function publicQuestions(questions) {
 }
 
 export function gradeAnswers(test, answers) {
+  if (!test || !Array.isArray(test.questions) || !test.questions.length) return { ok:false, error:'本课没有补充辨析题。' };
   if (!plain(answers)) return { ok: false, error: '请完成每一道题后再核对。' };
   const ids = new Set(test.questions.map(question => question.id));
   if (Object.keys(answers).length !== ids.size || Object.keys(answers).some(key => !ids.has(key))) return { ok: false, error: '请完成每一道题后再核对。' };

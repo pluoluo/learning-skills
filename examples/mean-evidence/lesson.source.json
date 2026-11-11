@@ -1,0 +1,272 @@
+{
+  "format": "interactive-topic-lesson.v1",
+  "skillVersion": "0.5.0",
+  "title": "平均数能说明什么？",
+  "subject": "math",
+  "need": "用一个不依赖选择题的完整操作例子检验自由画布、构造条件核对、保留解释与人工复核记录。知识目标是区分平均数描述总体与个人数量；不声称已经证明真实孩子的学习效果。",
+  "assumptions": [
+    "假设学习者接触过整数加法、除法和平均分；没有真实学生诊断。",
+    "原创补充材料，不声称对齐某版教材或提供标准化评价。"
+  ],
+  "presentation": {
+    "mode": "canvas"
+  },
+  "objectives": [
+    {
+      "id": "mean",
+      "goal": "通过保留不同分法，解释平均数与每个人的数量可以不同。",
+      "interaction": "在四人间转移方块，保持总数，先匀分，再构造同平均数下个人差异很大的反例。",
+      "misconception": "可能把平均数理解成人人实际拥有的数量；本课把它作为待检验推测。",
+      "feedback": "播放器只核对声明的数值条件；解释逐稿保留并标为待人工复核。",
+      "evidenceIds": [
+        "equal-work",
+        "counter-work",
+        "explain-mean"
+      ]
+    }
+  ],
+  "learningDesign": {
+    "mode": "training",
+    "strategy": "同一工作台先重新分配12块，再构造平均3但一人至少9块的反例；保存首次与修改作品，让学生用自己的分法支持解释。没有单选页或默认题数。",
+    "coverage": [
+      {
+        "id": "sharing",
+        "focus": "平均分后的数量与实际分法",
+        "contrast": "总体的平均值与每个人实际值不同",
+        "practice": "移动方块并保存匀分作品",
+        "evidenceIds": [
+          "equal-work"
+        ]
+      },
+      {
+        "id": "distribution",
+        "focus": "相同平均数下的不同分布",
+        "contrast": "匀分和一人至少9块都可保持平均3",
+        "practice": "保留新分法作为反例，引用初稿和修改稿解释",
+        "evidenceIds": [
+          "counter-work",
+          "explain-mean"
+        ]
+      }
+    ],
+    "progression": "一个连续工作台可自由切换问题，作品不随问题切换而清空。先预测和匀分，再修改分布、构造反例，并保留开放解释。没有满分门槛、固定时长或题目配额。",
+    "evidencePolicy": "每次记录由主动点击产生，保存当时分法与帮助情况；恢复图形不删除记录。条件符合仅反映有限数值，解释保持pending_review；点击记录或非空文字不代表完成或掌握。"
+  },
+  "evidenceTasks": [
+    {
+      "id": "equal-work",
+      "title": "把12块匀给四个人",
+      "kind": "construction",
+      "evaluation": {
+        "type": "numeric-constraints",
+        "fields": [
+          {
+            "key": "a",
+            "label": "甲的方块",
+            "integer": true,
+            "min": 0,
+            "max": 12
+          },
+          {
+            "key": "b",
+            "label": "乙的方块",
+            "integer": true,
+            "min": 0,
+            "max": 12
+          },
+          {
+            "key": "c",
+            "label": "丙的方块",
+            "integer": true,
+            "min": 0,
+            "max": 12
+          },
+          {
+            "key": "d",
+            "label": "丁的方块",
+            "integer": true,
+            "min": 0,
+            "max": 12
+          }
+        ],
+        "rules": [
+          {
+            "id": "total",
+            "label": "四人共有12块",
+            "left": {
+              "op": "add",
+              "args": [
+                {
+                  "op": "add",
+                  "args": [
+                    {
+                      "field": "a"
+                    },
+                    {
+                      "field": "b"
+                    }
+                  ]
+                },
+                {
+                  "op": "add",
+                  "args": [
+                    {
+                      "field": "c"
+                    },
+                    {
+                      "field": "d"
+                    }
+                  ]
+                }
+              ]
+            },
+            "relation": "eq",
+            "right": 12
+          },
+          {
+            "id": "equal_a",
+            "label": "甲有3块",
+            "left": {
+              "field": "a"
+            },
+            "relation": "eq",
+            "right": 3
+          },
+          {
+            "id": "equal_b",
+            "label": "乙有3块",
+            "left": {
+              "field": "b"
+            },
+            "relation": "eq",
+            "right": 3
+          },
+          {
+            "id": "equal_c",
+            "label": "丙有3块",
+            "left": {
+              "field": "c"
+            },
+            "relation": "eq",
+            "right": 3
+          },
+          {
+            "id": "equal_d",
+            "label": "丁有3块",
+            "left": {
+              "field": "d"
+            },
+            "relation": "eq",
+            "right": 3
+          }
+        ]
+      }
+    },
+    {
+      "id": "counter-work",
+      "title": "平均3块但丁至少9块",
+      "kind": "construction",
+      "evaluation": {
+        "type": "numeric-constraints",
+        "fields": [
+          {
+            "key": "a",
+            "label": "甲的方块",
+            "integer": true,
+            "min": 0,
+            "max": 12
+          },
+          {
+            "key": "b",
+            "label": "乙的方块",
+            "integer": true,
+            "min": 0,
+            "max": 12
+          },
+          {
+            "key": "c",
+            "label": "丙的方块",
+            "integer": true,
+            "min": 0,
+            "max": 12
+          },
+          {
+            "key": "d",
+            "label": "丁的方块",
+            "integer": true,
+            "min": 0,
+            "max": 12
+          }
+        ],
+        "rules": [
+          {
+            "id": "total",
+            "label": "四人共有12块",
+            "left": {
+              "op": "add",
+              "args": [
+                {
+                  "op": "add",
+                  "args": [
+                    {
+                      "field": "a"
+                    },
+                    {
+                      "field": "b"
+                    }
+                  ]
+                },
+                {
+                  "op": "add",
+                  "args": [
+                    {
+                      "field": "c"
+                    },
+                    {
+                      "field": "d"
+                    }
+                  ]
+                }
+              ]
+            },
+            "relation": "eq",
+            "right": 12
+          },
+          {
+            "id": "many",
+            "label": "丁至少有9块",
+            "left": {
+              "field": "d"
+            },
+            "relation": "gte",
+            "right": 9
+          }
+        ]
+      }
+    },
+    {
+      "id": "explain-mean",
+      "title": "平均数能说明什么，不能说明什么",
+      "kind": "explanation",
+      "evaluation": {
+        "type": "human-review",
+        "criteria": [
+          "是否引用自己保留的分法，而不只是背定义",
+          "是否解释总数、人数与平均数的关系",
+          "是否用反例说明平均数不等于每个人的数量；允许不同合理表述"
+        ]
+      }
+    }
+  ],
+  "content": {
+    "schemaVersion": 2,
+    "layout": "canvas",
+    "sourceNote": "原创0.5工作台示例。构造按总数和各人数量核对；文字理由需要人工复核。记录只保留在本页，可主动保存为HTML，刷新清空。",
+    "gradeNote": "假设已接触整数运算和平均分。未做真实孩子或物理平板验收，不提供掌握诊断。",
+    "introduction": "用移动和反例检验“平均数就是每个人的数量”，把作品和理由保留下来。",
+    "sections": [],
+    "canvas": {
+      "file": "canvas.html"
+    }
+  }
+}

@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - examples/perimeter-area/**
+      - examples/mean-evidence/**
       - skills/interactive-topic-lesson/**
       - .github/workflows/demo-pages.yml
   workflow_dispatch:
@@ -29,8 +30,11 @@ jobs:
         run: |
           node skills/interactive-topic-lesson/scripts/validate.mjs examples/perimeter-area/lesson.json
           node skills/interactive-topic-lesson/scripts/build.mjs examples/perimeter-area/lesson.json --out dist/demo
-          mkdir -p _site
+          node skills/interactive-topic-lesson/scripts/compile.mjs examples/mean-evidence/lesson.source.json --out dist/mean-lesson.json
+          node skills/interactive-topic-lesson/scripts/build.mjs dist/mean-lesson.json --out dist/mean-demo
+          mkdir -p _site/mean-evidence
           cp dist/demo/index.html _site/index.html
+          cp dist/mean-demo/index.html _site/mean-evidence/index.html
           cp LICENSE _site/LICENSE
           touch _site/.nojekyll
       - uses: actions/upload-pages-artifact@v4

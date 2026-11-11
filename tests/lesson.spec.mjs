@@ -113,7 +113,7 @@ for (const viewport of [{ width: 1000, height: 600 }, { width: 1920, height: 108
     const heightBefore = await page.locator('#lesson-frame').getAttribute('style');
     await page.evaluate(() => window.postMessage({channel:'special-study',type:'resize',payload:3999},'*'));
     await expect(page.locator('#lesson-frame')).toHaveAttribute('style', heightBefore);
-    await page.getByRole('button', { name: '换个例子', exact: true }).click();
+    await page.locator('#test-tab').click();
     await expect(page.getByRole('button', { name: '清空答案重做', exact: true })).toBeHidden();
     await page.getByRole('button', { name: '检查答案' }).click();
     await expect(page.locator('#result')).toContainText('第 1 题还没选');

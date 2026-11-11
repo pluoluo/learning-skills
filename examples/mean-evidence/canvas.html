@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>平均数能说明什么</title>
+<style>
+:root{--ink:#253d35;--muted:#526758;--green:#236b4b;--line:#cbd8c8;--paper:#fffdf7;--budget:650px}*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:18px/1.5 "PingFang SC","Microsoft YaHei",system-ui,sans-serif}button,input,textarea{font:inherit;color:inherit}button{min-height:44px;padding:8px 14px;border:1px solid var(--line);background:white;border-radius:9px;cursor:pointer;font-weight:650}button:disabled{opacity:.5;cursor:default}button[aria-pressed=true],.primary{background:var(--green);color:white}button:focus-visible,input:focus-visible,textarea:focus-visible,summary:focus-visible{outline:3px solid #a95a25;outline-offset:3px}main{padding:16px 22px;min-height:var(--budget);display:flex;flex-direction:column;gap:12px}h1{font-size:clamp(25px,2.4vw,36px);line-height:1.25;margin:0}p{margin:0}.lede{color:var(--muted);max-width:70ch;font-size:17px}.workspace{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(310px,1fr);gap:22px;flex:1;min-height:0}.board-area{align-self:start;display:flex;flex-direction:column;gap:10px}.board{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;padding:14px;background:#eef3e7;border:1px solid var(--line);border-radius:14px;flex:none;height:clamp(260px,calc(var(--budget) - 170px),650px);min-height:260px}.person{display:flex;flex-direction:column;gap:8px;text-align:center;min-width:0}.person h2{font-size:19px;margin:0}.tower{display:flex;flex-direction:column-reverse;gap:3px;min-height:160px;flex:1;justify-content:flex-start;align-items:stretch;padding:6px 12px;border-bottom:2px solid #799574}.tile{height:clamp(9px,calc((var(--budget) - 270px)/13),28px);min-height:9px;background:#93b77e;border:1px solid #557f4c;border-radius:3px}.count{font-size:24px;font-weight:750;font-variant-numeric:tabular-nums}.person button{font-size:16px;padding:8px 3px}.status{display:flex;gap:16px;flex-wrap:wrap;color:var(--muted);font-size:16px}.side{display:flex;flex-direction:column;gap:12px;min-width:0}.goals{display:flex;flex-wrap:wrap;gap:8px}.prompt{font-weight:650}.input-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}input{width:90px;min-height:44px;padding:6px 10px;border:1px solid #829d7e;border-radius:8px}textarea{width:100%;min-height:92px;padding:10px;border:1px solid #829d7e;border-radius:8px;resize:vertical}label{font-weight:650}.feedback{padding:10px 12px;background:#f5eddc;border-radius:8px;white-space:pre-line;font-size:16px}.feedback:empty{display:none}.note{font-size:15px;color:var(--muted)}details{border-top:1px solid var(--line);padding-top:4px}summary{cursor:pointer;min-height:44px;padding:8px 0;font-size:16px;font-weight:650}details p{font-size:16px;color:var(--muted);margin-top:8px}.record-actions{display:flex;gap:8px;flex-wrap:wrap}#record-feedback{font-size:16px}.explain{display:flex;flex-direction:column;gap:8px}.end-note{font-size:15px;color:var(--muted)}
+@media(max-height:650px){main{padding:10px 16px;gap:8px}h1{font-size:25px}.workspace{gap:14px}.board{min-height:220px;padding:10px}.tower{min-height:80px;padding:4px 8px}.side{gap:8px}.lede{font-size:16px}.person{gap:5px}.count{font-size:22px}}
+@media(max-width:720px){.workspace{grid-template-columns:1fr}.board{min-height:300px}.tile{height:14px}.person button{font-size:15px}}
+</style></head><body>
+<main data-study-root data-learning-objective="mean">
+<h1>平均3块，真的每个人都有3块吗？</h1>
+<p class="lede">四个人共有12块。移动方块保留总数，看看同一个平均数能对应哪些分法。你可以随时改变想检验的问题。</p>
+<div class="workspace">
+<section class="board-area" aria-label="可以重新分配的方块">
+<div id="board" class="board"></div><div class="status"><span>总数：12块</span><span id="hand">手中：0块</span><span id="average">平均数：先预测再核对</span></div>
+<div class="record-actions"><button id="restore">恢复最初的分法</button><button id="show-records" hidden>回看本次记录</button></div>
+<p class="note">先从一个人那里“拿1块”，再“给1块”到另一个人。手里还有方块时，先放回人群再核对。</p>
+</section>
+<section class="side" aria-label="问题、核对与解释">
+<div class="goals"><button id="goal-equal" aria-pressed="true">先匀一匀</button><button id="goal-counter" aria-pressed="false">构造一个反例</button></div>
+<p id="goal-prompt" class="prompt">怎样移动，才能让四个人一样多？</p>
+<div class="input-row"><label for="prediction">我预测平均</label><input id="prediction" type="number" min="0" step="1" inputmode="numeric"><span>块</span><button id="check-average">核对平均数</button></div>
+<p id="average-feedback" class="feedback" data-feedback aria-live="polite"></p>
+<button id="save-work" class="primary">记录并核对这次分法</button>
+<p id="record-feedback" class="feedback" data-feedback aria-live="polite">先试着移动方块。记录会保留你当时的分法，而不是只留下最后一次。</p>
+<details id="explanation-box"><summary>留下我的解释</summary><div class="explain"><label for="reason">我的解释：这个分法说明了什么？</label><textarea id="reason" placeholder="可以比较你保留的两次分法。这里不自动判断文字是否正确。"></textarea><button id="save-reason">保存解释，留待复核</button></div></details>
+<details id="hint"><summary>需要一点帮助</summary><p id="hint-text">“一样多”时，每个人应有几块？从多的人那里拿一块，给少的人，看看总数是否改变。</p></details>
+</section></div>
+<p class="end-note">数值核对只检验本次条件。你的解释会保留为待人工复核记录；没有总分、通关或掌握判断。</p>
+</main>
+<script>
+(()=>{
+'use strict';
+const $=id=>document.getElementById(id);
+const names=['甲','乙','丙','丁'];
+let values=[1,1,3,7],held=0,goal='equal',hintShown=false,averageHelp=false,available=false;
+function render(){
+  values.forEach((count,index)=>{
+    const tower=$('tower-'+index);tower.replaceChildren();
+    for(let n=0;n<count;n++){const tile=document.createElement('div');tile.className='tile';tile.setAttribute('aria-hidden','true');tower.append(tile);}
+    $('count-'+index).textContent=count+'块';$('take-'+index).disabled=count===0||held>0;$('give-'+index).disabled=held===0;
+  });
+  $('hand').textContent='手中：'+held+'块';$('save-work').disabled=held!==0;
+}
+for(let index=0;index<4;index++){
+  const person=document.createElement('div');person.className='person';
+  const heading=document.createElement('h2');heading.textContent=names[index];
+  const count=document.createElement('output');count.id='count-'+index;count.className='count';
+  const tower=document.createElement('div');tower.id='tower-'+index;tower.className='tower';tower.setAttribute('aria-hidden','true');
+  const take=document.createElement('button');take.id='take-'+index;take.textContent='拿1块';take.setAttribute('aria-label','从'+names[index]+'拿1块');
+  const give=document.createElement('button');give.id='give-'+index;give.textContent='给1块';give.setAttribute('aria-label','给'+names[index]+'1块');
+  take.addEventListener('click',()=>{if(!held&&values[index]>0){values[index]--;held=1;changed();}});
+  give.addEventListener('click',()=>{if(held){values[index]++;held=0;changed();}});
+  heading.append(count);person.append(heading,tower,take,give);$('board').append(person);
+}
+function changed(){render();$('record-feedback').textContent='分法已改变。可以继续移动，或保存这一份作品再比较；旧记录仍保留。';}
+function setGoal(next){goal=next;for(const name of ['equal','counter'])$('goal-'+name).setAttribute('aria-pressed',String(name===goal));$('goal-prompt').textContent=goal==='equal'?'怎样移动，才能让四个人一样多？':'保持平均3块，却让丁至少有9块。这个分法会怎样反驳“平均数就是每个人的数量”？';$('hint-text').textContent=goal==='equal'?'“一样多”时，每个人应有几块？从多的人那里拿一块，给少的人，看看总数是否改变。':'总数仍是12块。要让丁达到9块，其他三人加起来还剩多少？平均数由谁决定，个人数量又由什么决定？';$('record-feedback').textContent='问题变了，你的分法仍然保留。试着修改它，再记录新的证据。';}
+function send(type,payload){parent.postMessage({channel:'special-study',type,payload},'*');}
+$('goal-equal').addEventListener('click',()=>setGoal('equal'));$('goal-counter').addEventListener('click',()=>setGoal('counter'));
+$('restore').addEventListener('click',()=>{values=[1,1,3,7];held=0;changed();$('record-feedback').textContent='已恢复最初的1、1、3、7。已保存的作品和解释没有删除。';});
+$('check-average').addEventListener('click',()=>{
+  const value=$('prediction').value.trim();
+  if(!/^(0|[1-9]\d*)$/.test(value)){$('average-feedback').textContent='先写下一个整块数预测，再核对。';return;}
+  if(held){$('average-feedback').textContent='手中还有一块，先把它给某个人，再比较四个人的分法。';return;}
+  averageHelp=true;$('average').textContent='平均数：3块';$('average-feedback').textContent=(Number(value)===3?'这次预测与计算一致。':'你预测'+value+'块；核对得到3块。')+'\n12÷4=3。你眼前四个人的数量必须都等于3吗？试着用另一种分法检验。';
+});
+$('prediction').addEventListener('input',()=>{$('average-feedback').textContent='';});
+$('hint').addEventListener('toggle',()=>{if($('hint').open)hintShown=true;});
+function assistance(){return {hintIds:hintShown?['move-blocks']:[],explanationViewed:averageHelp};}
+$('save-work').addEventListener('click',()=>{
+  if(held)return;if(!available){$('record-feedback').textContent='当前宿主不支持保存学习记录；可继续操作，与家长讨论这个分法。';return;}
+  send('evidence',{taskId:goal==='equal'?'equal-work':'counter-work',response:{a:values[0],b:values[1],c:values[2],d:values[3]},assistance:assistance()});
+});
+$('save-reason').addEventListener('click',()=>{
+  if(!available){$('record-feedback').textContent='当前宿主未提供记录功能，可保留本页文字与家长讨论。';return;}
+  send('evidence',{taskId:'explain-mean',response:{分法:values.slice(),我的解释:$('reason').value},assistance:assistance()});
+});
+$('show-records').addEventListener('click',()=>send('request-records'));
+window.addEventListener('message',event=>{
+  if(event.source!==parent||event.data?.channel!=='special-study')return;
+  const {type,payload}=event.data;
+  const viewport=type==='viewport'?payload:type==='context'?payload?.viewport:null;
+  if(viewport&&Number.isFinite(viewport.height))document.documentElement.style.setProperty('--budget',Math.max(300,viewport.height)+'px');
+  if(type==='context'){available=payload?.capabilities?.evidence===true;$('show-records').hidden=!available;}
+  if(type==='evidence-result'){
+    if(!payload.ok){$('record-feedback').textContent=payload.error;return;}
+    const record=payload.record;
+    $('record-feedback').textContent=record.result.status==='pending_review'?'解释已保存，待人工复核；没有自动判对，也没有覆盖之前的解释。':record.result.status==='invalid'?record.result.message:(record.result.outcome==='met'?'这次分法符合所声明的数值条件。':'这次分法还有条件尚未符合，作品已保留。')+'\n'+record.result.criteria.map(item=>item.label+'：'+(item.met?'符合':'尚未符合')).join('；')+'\n数值核对没有判断你的解释是否充分。';
+  }
+});
+new ResizeObserver(()=>send('resize',Math.ceil(document.querySelector('main').getBoundingClientRect().height))).observe(document.querySelector('main'));
+render();send('ready');
+})();
+</script></body></html>

@@ -8,7 +8,7 @@ Do not infer prior knowledge solely from grade. In method-practice tasks, provid
 
 ## Plan coverage before authoring questions
 
-Use learningDesign at the lesson root (private author metadata; see contract.md). Map each relevant confusion to a discriminating contrast, a concrete operation, and independently interpretable new-example checks. Derive coverage from the user's need and the topic. Do not add unrelated difficulties merely to make a course look larger.
+Use learningDesign at the lesson root (private author metadata; see contract.md). Map each relevant confusion to a discriminating contrast, a concrete operation, and independently interpretable evidence. In 0.5, coverage can link evidenceIds for constructions/revisions/reasons, testIds for optional recognition, or both. A new-case construction or explanation is not required to become a choice question. Derive coverage from the user's need and the topic. Do not add unrelated difficulties merely to make a course look larger.
 
 Derive the contrasts from the topic and reported difficulty rather than a reusable list of question types. Change the relevant conditions, representation, scope or evidence so that learners must distinguish relationships rather than recognize a repeated surface pattern. State the omitted scope instead of implying exhaustive coverage.
 
@@ -51,6 +51,8 @@ Relate correctness to the learning goal too: name the relationship, condition or
 Keep the first checked response, use of item-specific hints, and responses after explanation/retries distinguishable in page memory. Do not erase history by offering “try again” and then describe a corrected answer as a fresh independent success. An optional general strategy is different from an item-specific hint; state the help actually provided. Opening a hint means help was shown, not proof it was read. Do not claim to measure hidden reasoning.
 
 Give a short learner/parent summary by the covered dimensions: what was attempted, what was difficult on this set, what was corrected after help, and a useful next practice direction. Describe only the distinctions actually examined, rather than diagnosing a lasting weakness. A high total score or a few easy successes does not establish mastery; list untested areas and limited evidence honestly. Pure exploration may report observations and narrower scope without pretending to be a comprehensive training assessment. No authoritative student record, durable tracking or standardized diagnosis is provided by this skill.
+
+Review work, modification and reasoning records as outputs in their own right. Numeric conditions may be checked deterministically; open reasons remain pending human review. Missing automatic grading must not erase the work or relegate it to an unrecorded process. Do not aggregate these distinct observations into a mastery percentage.
 
 ## Acceptance before delivery
 

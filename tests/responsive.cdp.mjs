@@ -70,7 +70,7 @@ try {
       await page.locator('footer summary').click();await settle(page,frame);
       await page.locator('footer summary').click();await settle(page,frame);
       await expect.poll(async()=>Math.abs((await measure(page,frame)).canvas.root.height-initial.canvas.root.height)).toBeLessThan(3);
-      await page.getByRole('button',{name:'换个例子',exact:true}).click();
+      await page.locator('#test-tab').click();
       await page.getByRole('button',{name:'检查答案'}).click();await expect(page.locator('#result')).toContainText('第 1 题还没选');
       for(const[name,index]of[['q1',1],['q2',2],['q3',0],['q4',1]])await page.locator(`input[name="${name}"]`).nth(index).check();
       await page.getByRole('button',{name:'检查答案'}).click();await expect(page.locator('#result')).toContainText('4/4');

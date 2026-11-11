@@ -4,7 +4,7 @@ license: MIT
 description: Create interactive topic learning and practice in Chinese, mathematics or English through one entry point, loading the matching subject guidance. By default, deploy locally and deliver one LAN URL for a tablet on the same network; the agent owns later revisions. Use for 互动专题、互动小课、专题训练、知识点探索; printable exam layout is separate.
 metadata:
   author: pluoluo
-  version: "0.4.3"
+  version: "0.5.0"
 ---
 
 # Interactive topic lesson
@@ -55,11 +55,15 @@ Use one author source: lesson.source.json plus its referenced canvas.html. Compi
 
 Adapt to available width and height, not only width breakpoints. On larger views, enlarge or reorganize the actual learning objects and controls so the activity remains the focus rather than a small strip above unused space. Preserve geometric proportions, readable text and compact-screen access; avoid filling height with empty decoration. The standalone host supplies optional viewport dimensions (see contract.md); keep sizing feedback independent of the iframe's own expanding height.
 
-Generate formal check questions separately in content.test. For the default standalone check page, author six meaningful new-example questions, displayed as three complete two-column rows at the standard viewports. This is the default for this supplementary page, not a quota for the main activity or a format restriction; follow an explicit user-requested count when different. Cover relevant distinctions with real variation rather than padding with renamed copies. The player renders the supplied questions and never invents a sixth answer or silently duplicates an item. Training-mode questions need optionFeedback aligned to each option, not only a shared explanation. Check answers and visual quantities independently of their labels. Use plausible distractors to distinguish relevant confusions; vary structure and reasoning demand as well as surface details. Make scope and untested areas clear. Retain uncertainty for open expression rather than manufacturing a correctness judgment.
+## Choose evidence and presentation
 
-Keep the canvas independent of the standalone player's navigation and test UI. Use the optional request-test message when the host advertises it, rather than naming or duplicating an outer navigation button; it must still operate before any host response. Do not place formal answer keys, student identity, credentials, remote dependencies or database writes in the canvas.
+Read [references/learning-evidence.md](references/learning-evidence.md) before authoring 0.5 learning records. The default presentation is a free canvas: let the activity own its scenes, stages, navigation and new-case tasks. Keep a stable technical container for isolation, sizing and evidence; do not impose exploration→quiz or another fixed lesson sequence. The older tab layout remains an explicit compatibility option.
 
-The shipped player's exploration/check tabs are a fallback navigation surface, not a prescribed teaching sequence or a requirement to divide the canvas into two stations. Choose the canvas's scenes, stages, navigation and operations from the learning goal. Do not let the fallback single-choice renderer determine how the learner explores, constructs or expresses an idea. The current formal renderer remains single-choice; any stronger claimed outcome must be supported by the actual canvas activity or an available evaluator.
+Declare evidenceTasks for the learner's constructions, revisions or explanations, linked from objective/coverage evidenceIds. A numeric-constraints task lets the host independently check finite, declarative conditions on a submitted construction. A human-review task preserves the work and reason as pending_review, without evaluating its meaning. Capture first work, revisions and actually shown support on explicit learner actions; do not overwrite old work, equate nonempty input with success or treat helped corrections as independent success. Canvas-only lessons can omit content.test entirely; objectives need actual evidence links rather than mandatory choice links.
+
+Choice questions are an optional recognition supplement. There is no default count and no quota of question types: use only meaningful examples, with layout adapting to odd counts. When used, put them in content.test and supply optionFeedback for each choice in training mode. Keep their limits clear: counts on supplied alternatives do not assess independent construction or reasoning. Check answers and visual quantities independently. Open-ended validity needs real support or human review, never a fabricated exact-string score.
+
+Keep formal choice keys out of the canvas. Use advertised requestTest/evidence capabilities instead of guessing host controls; remain operable when an integration omits them. The parent receives one course URL; 本次记录 can preserve the learner's work locally and save a readable HTML record on request. It does not provide account history, cross-device storage or mastery diagnosis.
 
 ## Validate, repair and deliver
 
@@ -85,6 +89,6 @@ Inspect the rendered composition as well as operation: meaningful use of screen 
 
 Repair specific failed checks while preserving completed work and the user's original need. Limit autonomous repair to two passes; if a material problem remains, report the blocker and retain the private draft rather than hand off a broken learner URL. Never claim independent review that did not happen.
 
-Build and retain index.html, lesson.json, special-study.json, validation.json, review.json and LICENSE for agent maintenance and platform use. Keep the player's embedded MIT notice. The user's new lesson content and supplied materials retain their respective rights. Local practice scores describe this attempt only; they are not a mastery diagnosis or an authoritative host record.
+Build and retain index.html, lesson.json, special-study.json, validation.json, review.json and LICENSE for agent maintenance and platform use. Keep the player's embedded MIT notice. The user's new lesson content and supplied materials retain their respective rights. Construction records and recognition results describe only the observed task. Open explanations remain pending review; no record count, local check or export establishes mastery or an authoritative host record.
 
 On successful lesson delivery, the final reply contains exactly one clickable lesson URL. Put availability, stop/revision instructions and honest check status inside the lesson's adult information area. Do not offer parents JSON, ZIPs, source paths or manual editing steps unless they explicitly request developer artifacts. If no reachable URL can be provided, say delivery is blocked and name the missing capability; do not invent a URL or present a file as completed delivery. Later edits are agent work: revise the author source, recheck, and update the existing route when possible without interrupting an active session.
