@@ -4,7 +4,7 @@ license: MIT
 description: Create interactive topic learning and practice in Chinese, mathematics or English through one entry point, loading the matching subject guidance. By default, deploy locally and deliver one LAN URL for a tablet on the same network; the agent owns later revisions. Use for 互动专题、互动小课、专题训练、知识点探索; printable exam layout is separate.
 metadata:
   author: pluoluo
-  version: "0.4.2"
+  version: "0.4.3"
 ---
 
 # Interactive topic lesson
@@ -55,9 +55,11 @@ Use one author source: lesson.source.json plus its referenced canvas.html. Compi
 
 Adapt to available width and height, not only width breakpoints. On larger views, enlarge or reorganize the actual learning objects and controls so the activity remains the focus rather than a small strip above unused space. Preserve geometric proportions, readable text and compact-screen access; avoid filling height with empty decoration. The standalone host supplies optional viewport dimensions (see contract.md); keep sizing feedback independent of the iframe's own expanding height.
 
-Generate formal check questions separately in content.test. Training-mode questions need optionFeedback aligned to each option, not only a shared explanation. Check answers and visual quantities independently of their labels. Use plausible distractors to distinguish relevant confusions; vary structure and reasoning demand as well as surface details. Make scope and untested areas clear. Retain uncertainty for open expression rather than manufacturing a correctness judgment.
+Generate formal check questions separately in content.test. For the default standalone check page, author six meaningful new-example questions, displayed as three complete two-column rows at the standard viewports. This is the default for this supplementary page, not a quota for the main activity or a format restriction; follow an explicit user-requested count when different. Cover relevant distinctions with real variation rather than padding with renamed copies. The player renders the supplied questions and never invents a sixth answer or silently duplicates an item. Training-mode questions need optionFeedback aligned to each option, not only a shared explanation. Check answers and visual quantities independently of their labels. Use plausible distractors to distinguish relevant confusions; vary structure and reasoning demand as well as surface details. Make scope and untested areas clear. Retain uncertainty for open expression rather than manufacturing a correctness judgment.
 
 Keep the canvas independent of the standalone player's navigation and test UI. Use the optional request-test message when the host advertises it, rather than naming or duplicating an outer navigation button; it must still operate before any host response. Do not place formal answer keys, student identity, credentials, remote dependencies or database writes in the canvas.
+
+The shipped player's exploration/check tabs are a fallback navigation surface, not a prescribed teaching sequence or a requirement to divide the canvas into two stations. Choose the canvas's scenes, stages, navigation and operations from the learning goal. Do not let the fallback single-choice renderer determine how the learner explores, constructs or expresses an idea. The current formal renderer remains single-choice; any stronger claimed outcome must be supported by the actual canvas activity or an available evaluator.
 
 ## Validate, repair and deliver
 

@@ -24,6 +24,8 @@ For a consequential wrong attempt, explain the learner's selected answer: what i
 - State what the learner may change and what relationship or quality they need to preserve or examine. Show the consequence without revealing the decision an independent task is meant to test. Worked demonstrations and requested hints may show more, but count as supported practice.
 - A single-choice answer remains editable by choosing another option; it needs no reset before checking. Offer “重新作答” only after an attempt has produced a result, or an explicitly named restore/clear action when it genuinely resets a multi-step construction. Changing a checked answer must invalidate its stale judgment and give a direct route to checking again. Do not clear unrelated work unnecessarily.
 
+For the default standalone supplementary check page, new authoring uses six distinct examples unless the user asks for another count. This gives three complete two-column rows at the standard viewports; it does not set the number of main activities, imply full topic coverage, or justify padding with near-identical questions. The shipped exploration/check tabs are navigation supplied by the fallback player; the canvas itself can follow the investigation, construction or expression flow the content needs.
+
 ## Budget the actual learning viewport
 
 The tablet viewport is not the canvas budget. At 1000×600 CSS px, the standalone header and collapsed footer can leave only about 400–470px for the learning area; exact height depends on title wrapping, fonts and footer state. Use the supplied context/viewport height and inspect the built host, not only a canvas opened on its own. An authoring assumption of 600px of canvas height can push the primary operation below the fold.

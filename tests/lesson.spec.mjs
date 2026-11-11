@@ -5,6 +5,7 @@ import os from 'node:os';
 import { pathToFileURL } from 'node:url';
 import { readLesson } from '../skills/interactive-topic-lesson/scripts/lib.mjs';
 import { buildLesson } from '../skills/interactive-topic-lesson/scripts/build.mjs';
+import { startLessonServer } from '../skills/interactive-topic-lesson/scripts/serve.mjs';
 
 let output, longOutput;
 test.beforeAll(async () => {
@@ -23,10 +24,28 @@ test.beforeAll(async () => {
   }));
   fixture.objectives=[{...fixture.objectives[0],testIds:fixture.content.test.questions.map(q=>q.id)}];
   fixture.learningDesign={mode:'training',strategy:'根据实际情境比较表达',coverage:[{id:'meaning',focus:'人物与表达之间的关系，需要同时关注指代、动词形式与完整句意',contrast:'比较形式和意思',practice:'修改后重新检查',testIds:fixture.content.test.questions.map(q=>q.id)}],progression:'从比较进入新情境',evidencePolicy:'本页有限证据'};
-  fixture.skillVersion='0.4.2';
+  fixture.skillVersion='0.4.3';
   longOutput=path.join(output,'long-checks');await buildLesson(fixture,longOutput);
 });
 test.afterAll(async () => { await rm(output, { recursive: true, force: true }); });
+
+test('HTTP delivery uses an inline icon and six supplied checks without requesting favicon.ico',async({page},testInfo)=>{
+  const service=await startLessonServer({lesson:path.join(longOutput,'index.html'),state:path.join(output,'http-delivery.json')});
+  try {
+    const requests=[],errors=[];
+    page.on('request',request=>requests.push(request.url()));
+    page.on('console',message=>{if(message.type()==='error')errors.push(message.text());});
+    page.on('pageerror',error=>errors.push(error.message));
+    await page.setViewportSize({width:1000,height:600});
+    await page.goto(service.record().url);
+    await expect(page.locator('link[rel="icon"]')).toHaveAttribute('href','data:,');
+    await page.locator('#test-tab').click();await expect(page.locator('.question-card')).toHaveCount(6);
+    const cards=await page.locator('.question-card').evaluateAll(nodes=>nodes.map(node=>({x:node.getBoundingClientRect().x,y:node.getBoundingClientRect().y})));
+    for(let row=0;row<3;row++){expect(Math.abs(cards[row*2].y-cards[row*2+1].y)).toBeLessThan(1);expect(cards[row*2+1].x).toBeGreaterThan(cards[row*2].x);}
+    await page.screenshot({path:testInfo.outputPath('http-six-checks.png'),fullPage:true});
+    expect(requests.filter(url=>new URL(url).pathname.endsWith('/favicon.ico'))).toEqual([]);expect(errors).toEqual([]);
+  } finally { await service.stop(); }
+});
 
 for (const viewport of [{ width: 1000, height: 600 }, { width: 1920, height: 1080 }]) {
   test(`standalone file, real operations and local checks at ${viewport.width}×${viewport.height}`, async ({ page }, testInfo) => {

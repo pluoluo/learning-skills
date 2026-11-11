@@ -15,7 +15,7 @@ The root contains:
 ```json
 {
   "format": "interactive-topic-lesson.v1",
-  "skillVersion": "0.4.2",
+  "skillVersion": "0.4.3",
   "title": "Lesson title",
   "subject": "math",
   "need": "The user's original learning need",
@@ -63,6 +63,10 @@ The root contains:
 ```
 
 subject is math, chinese or english. IDs are stable, unique within their collection, at most 40 characters and match [a-zA-Z][a-zA-Z0-9_-]*. All objective testIds must exist; every question must be referenced. One to five objectives and one to fifty questions are resource limits inherited from the current host design. Questions have two to eight distinct choices and a zero-based integer answer. passScore is an integer from 60 to 100.
+
+From 0.4.3, new authoring for the default standalone check page uses six meaningful questions unless the user explicitly requests another count. At the two standard viewports these form three complete two-column rows. This authoring default does not change the compatible 1–50-question schema, rewrite legacy lessons, or set the number of canvas activities. Build/render scripts do not generate, pad or duplicate questions. To revise an existing five-question lesson, author a sixth distinct new example with its answer, option feedback and objective/coverage links, then recompile and recheck.
+
+The player currently supplies exploration/check navigation as a fallback. The canvas can use a continuous investigation, multiple scenes, a construction workspace or another appropriate learning flow; it is not required to copy these two views or the check grid. The learning goal, observable consequences and feedback govern the design. Storage, isolation, message and artifact boundaries remain stable while the canvas presentation varies.
 
 Version 0.4 routes authoring through the matching references/subjects guide using this existing subject field; it does not add a new public format or scoring engine. Version 0.4.1 clarifies agent-owned browser checking; browser evidence can come from any permitted existing tool. Version 0.4.2 fixes the shared check-page layout and clarifies canvas height and feedback wording. The artifact format and review statuses remain unchanged. In private review.json subject evidence, identify the guide and actual content review performed. The current formal-check player supports single-choice questions. Other learning actions can live in the canvas, but recognizing an option does not by itself establish free expression, a written proof or listening/speaking performance. If a requested outcome requires evaluation the current host cannot provide, raise that boundary instead of silently claiming an equivalent outcome.
 
