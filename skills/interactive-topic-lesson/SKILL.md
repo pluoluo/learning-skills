@@ -4,7 +4,7 @@ license: MIT
 description: Create interactive topic learning and practice in Chinese, mathematics or English through one entry point, loading the matching subject guidance. By default, deploy locally and deliver one LAN URL for a tablet on the same network; the agent owns later revisions. Use for 互动专题、互动小课、专题训练、知识点探索; printable exam layout is separate.
 metadata:
   author: pluoluo
-  version: "0.5.0"
+  version: "0.5.1"
 ---
 
 # Interactive topic lesson
@@ -39,11 +39,15 @@ If the subject is genuinely ambiguous and changes the activity, ask one targeted
 
 Subject guides refine teaching decisions, not the shared artifact contract, interaction rules or delivery defaults. They do not mandate one layout, sequence, grade-specific formula or teaching method. A subject's test examples must not become rules for the other subjects. When the requested outcome needs an unsupported evaluation or service, explain the specific gap and viable choices to the user before substituting a weaker outcome or expanding capability.
 
-## Design and make the activity
+## Review the teaching before choosing the interface
 
 Read [references/teaching.md](references/teaching.md) and [references/learning-design.md](references/learning-design.md) for method, coverage, progression and feedback design, then [references/contract.md](references/contract.md) for the portable artifact format. A host integration request additionally uses [references/host-integration.md](references/host-integration.md).
 
-Before writing the page, record a concise design in the agent-only author workspace (see contract.md): original need, assumptions, objectives, the action and feedback for each objective, and its new-example check. Objectives must describe what the learner can do. Choose the number and interaction form that the content needs; the validator's resource limits are not teaching quotas.
+For a new lesson or a substantive teaching revision, follow [references/authoring-process.md](references/authoring-process.md): write and review the knowledge-depth and explanation plan first; then write and review its presentation plan; only then implement the web activity and review the implemented teaching as well as browser behavior. These are authoring dependencies, not a fixed sequence of student screens. A page shell, a coverage map or a list of activity labels cannot substitute for the reviewed teaching content.
+
+Keep teaching-plan.md and presentation-plan.md in the private author workspace, with their actual review findings and revisions. The first plan includes the essential relationships and conditions, explanations in learner-facing language, concrete materials, meaningful likely responses, feedback and a new-case task. Choose depth appropriate to the goal and learner; do not equate it with harder vocabulary, more rules or more questions. The second plan maps that reviewed content to what the learner sees, changes and must figure out. Do not start lesson-specific HTML/CSS/JS before both plans have resolved their material review findings. Environment discovery can proceed independently.
+
+The agent performs these reviews by default without waiting for parent approval. A separate self-review pass must identify itself honestly; do not invent independent reviewers, learner observations or semantic passes from schema checks. Follow a user-requested planning/approval stop when provided. A small implementation-only repair can reuse the relevant reviewed plans; revise teaching and downstream plans when its meaning, evidence or support changes.
 
 For a reported difficulty or a request for training, use training mode and record learningDesign: a concise strategy, a coverage map of relevant confusions and contrasts, the linked operations and new checks, progression, and how first checks/hints/retries will be interpreted. Do not assume one demonstration covers a topic. A curiosity-led exploration can use exploration mode and a narrower stated scope without claiming weakness coverage. New 0.3+ lessons require this design; older artifacts remain supported.
 
@@ -51,11 +55,7 @@ Describe the shortest useful action → visible consequence → judgment sequenc
 
 When depth and active thinking are requested, plan the learner's prediction, construction, transformation or explanation as the core experience. A workshop label or draggable answer choices do not establish that depth. Formal single-choice checks are supplementary and must not make the whole lesson a sequence of supplied answers; review the actual thinking demanded using teaching.md and the subject guide.
 
-Use one author source: lesson.source.json plus its referenced canvas.html. Compile these into portable lesson.json; generated build products are not separate editing targets. Create complete inline HTML/CSS/classic JavaScript in canvas.html; compilation embeds it under content.canvas.html. The first screen must make the learning action clear and operable. Provide a concise method or worked help when it supports the task; for discovery, give a clear goal and constraints without disclosing the relationship being investigated. Let learners change, compare, construct or express something, see consequences and try again. On an error, explain what the response captures and where it fails using task evidence, then offer a concrete revision move. Support hints, revisiting and stopping without forcing a sequence of perfect answers. Keep controls operable by touch and keyboard; provide a click alternative to dragging.
-
-Adapt to available width and height, not only width breakpoints. On larger views, enlarge or reorganize the actual learning objects and controls so the activity remains the focus rather than a small strip above unused space. Preserve geometric proportions, readable text and compact-screen access; avoid filling height with empty decoration. The standalone host supplies optional viewport dimensions (see contract.md); keep sizing feedback independent of the iframe's own expanding height.
-
-## Choose evidence and presentation
+## Map presentation and evidence before implementation
 
 Read [references/learning-evidence.md](references/learning-evidence.md) before authoring 0.5 learning records. The default presentation is a free canvas: let the activity own its scenes, stages, navigation and new-case tasks. Keep a stable technical container for isolation, sizing and evidence; do not impose exploration→quiz or another fixed lesson sequence. The older tab layout remains an explicit compatibility option.
 
@@ -64,6 +64,14 @@ Declare evidenceTasks for the learner's constructions, revisions or explanations
 Choice questions are an optional recognition supplement. There is no default count and no quota of question types: use only meaningful examples, with layout adapting to odd counts. When used, put them in content.test and supply optionFeedback for each choice in training mode. Keep their limits clear: counts on supplied alternatives do not assess independent construction or reasoning. Check answers and visual quantities independently. Open-ended validity needs real support or human review, never a fabricated exact-string score.
 
 Keep formal choice keys out of the canvas. Use advertised requestTest/evidence capabilities instead of guessing host controls; remain operable when an integration omits them. The parent receives one course URL; 本次记录 can preserve the learner's work locally and save a readable HTML record on request. It does not provide account history, cross-device storage or mastery diagnosis.
+
+## Implement the reviewed presentation
+
+Transfer the reviewed decisions into lesson.source.json objectives/learningDesign/evidence tasks without reducing them to satisfy the available controls or grader. If implementation cannot preserve a material learning requirement, revise and re-review the affected plan before continuing; do not silently replace it with recognition choices or a saved but unsupported explanation box.
+
+Use one author source: lesson.source.json plus its referenced canvas.html. Compile these into portable lesson.json; generated build products are not separate editing targets. Create complete inline HTML/CSS/classic JavaScript in canvas.html; compilation embeds it under content.canvas.html. The first screen must make the learning action clear and operable. Provide a concise method or worked help when it supports the task; for discovery, give a clear goal and constraints without disclosing the relationship being investigated. Let learners change, compare, construct or express something, see consequences and try again. On an error, explain what the response captures and where it fails using task evidence, then offer a concrete revision move. Support hints, revisiting and stopping without forcing a sequence of perfect answers. Keep controls operable by touch and keyboard; provide a click alternative to dragging.
+
+Adapt to available width and height, not only width breakpoints. On larger views, enlarge or reorganize the actual learning objects and controls so the activity remains the focus rather than a small strip above unused space. Preserve geometric proportions, readable text and compact-screen access; avoid filling height with empty decoration. The standalone host supplies optional viewport dimensions (see contract.md); keep sizing feedback independent of the iframe's own expanding height.
 
 ## Validate, repair and deliver
 
@@ -83,7 +91,7 @@ node scripts/build.mjs /path/to/private/lesson.json --out /path/to/private/build
 
 Resolve scripts relative to this SKILL.md; do not assume the user is in the skill directory. Write results to the requested workspace, not into the installed skill. The builder refuses existing output files unless --force is supplied for an intended rebuild.
 
-Validation checks structure, references, classic script syntax and some dependency hazards. Its report does not establish teaching correctness or browser behavior. Review actual strategy, coverage, progression and every selected-option feedback against the selected subject guide, learning-design.md and teaching.md, not just final answers. In private review.json subject evidence, name the loaded guide and performed content checks, including the most ambiguous case and any outcome that the interactions cannot establish. Record browser/learner checks separately; never replace not_run with passed without evidence. If a browser is available, exercise the primary operation, distinct wrong options where present, a hint or reset, new-example checks, learning-summary interpretation and keyboard interaction at the requested sizes. The default shipped sizes are 1000×600 and 1920×1080 CSS pixels; adapt them when the user requests another context.
+Validation checks structure, references, classic script syntax and some dependency hazards. Its report does not establish teaching correctness or browser behavior. Review the actual implemented content against the reviewed teaching/presentation plans, selected subject guide, learning-design.md and teaching.md. Trace the central explanation and most demanding task through concrete learner responses; check for lost conditions, answer-revealing presentation and feedback that bypasses reasoning. In private review.json subject evidence, identify the plan revisions and performed checks, including the weakest case, resolved findings and any outcome the interactions cannot establish. Prior plan passes do not pass the implementation. Record browser/learner checks separately; never replace not_run with passed without evidence. If a browser is available, exercise the primary operation, distinct wrong options where present, a hint or reset, new-example checks, learning-summary interpretation and keyboard interaction at the requested sizes. The default shipped sizes are 1000×600 and 1920×1080 CSS pixels; adapt them when the user requests another context.
 
 Inspect the rendered composition as well as operation: meaningful use of screen height, actual diagram size, control reachability and overflow. Resize a live lesson in both directions and open/close support to catch retained heights or resize loops, while preserving learner input. Distinguish CSS viewport size from physical pixel density or browser zoom; record which was tested. Passing interaction tests alone is not a responsive-layout acceptance result.
 

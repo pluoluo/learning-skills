@@ -6,6 +6,8 @@ Node.js 20+ is needed to compile, validate and build; those tools need no npm in
 
 Keep author/lesson.source.json and its referenced canvas.html as the editable source. content.canvas is {"file":"canvas.html"}; compile.mjs embeds it into a portable lesson.json outside the author directory. Referenced files and symlinks must stay inside that directory. Do not edit both source and generated copies. Legacy inline lesson.json remains supported.
 
+From skill 0.5.1, new authoring also keeps private teaching-plan.md and presentation-plan.md with their respective review findings before lesson-specific web implementation; see [authoring-process.md](authoring-process.md). They are pedagogical design inputs, not alternative executable sources or additional learner deliverables. The portable schema and existing lesson compatibility are unchanged; these files are not embedded or verified semantically by the compiler.
+
 ## A lesson without choice questions
 
 ```json

@@ -2,6 +2,8 @@
 
 The unit of quality is whether the activity supports the stated learning need, not whether a webpage runs or a short quiz can be completed. Use the structure below as design decisions, not fixed page layouts, stage counts, minute targets or problem quotas.
 
+Use [authoring-process.md](authoring-process.md) to separate the reviewed knowledge/explanation plan from its reviewed presentation and final implementation. This reference supplies criteria for those reviews; a learningDesign coverage map alone does not establish that the material and explanations have been written or reviewed.
+
 ## Choose support that fits the learning goal
 
 Do not infer prior knowledge solely from grade. In method-practice tasks, provide a concise, usable strategy and optional worked help; returning learners can act immediately. In discovery tasks, clarify the goal and allowed operations while leaving the target relationship for the learner to investigate. Give enough information to avoid guessing hidden criteria without turning every lesson into an explanation-first sequence. Keep support available, and distinguish general guidance from item-specific help. A shortcut must have an appropriate scope; do not promote a rule valid in one example into a universal method.
