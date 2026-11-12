@@ -10,6 +10,8 @@ From skill 0.5.1, new authoring also keeps private teaching-plan.md and presenta
 
 0.6 adds required task-authenticity and cold-read records with a separate `scripts/check-plans.mjs author-directory` structure check. It does not gate compile/validate/build, require plans for old 0.5.0/0.5.1 artifacts, or change the artifact/review schemas. Subject-review string evidence labels and implementation/plan differences are documented in authoring-process.md; completed implementation still needs its own review.
 
+0.6.1 supports multiline plan records and a single private `student-facing-copy` JSON block. Each array item has a unique id, a state string and a nonempty text string map; screen-copy.mjs extracts all or selected screen states for cold reading and actual-render comparison. This source is not embedded into the lesson as a new field. The compiler, validator and default build remain compatible. An opt-in `build.mjs --require-plans author-directory` checks records plus explicit author-declared content/cold-read/presentation approvals before writing output. It also retains a private plans-check.json with artifact/plan/copy digests and chronologyVerified:false. This is a build-time receipt, not proof of pedagogical quality, actual execution order, or a completed implementation review. A forced rebuild without the option removes an obsolete receipt.
+
 ## A lesson without choice questions
 
 ```json

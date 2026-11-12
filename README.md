@@ -2,7 +2,7 @@
 
 把孩子的具体学习困难，交给 AI Agent 做成可操作、有针对性反馈的互动专题学习。
 
-当前源码版本：**0.6.0**。统一使用 `interactive-topic-lesson` 入口，内部按语文、数学、英语加载教学指导；交互与局域网交付流程共用。
+当前源码版本：**0.6.1**。统一使用 `interactive-topic-lesson` 入口，内部按语文、数学、英语加载教学指导；交互与局域网交付流程共用。
 
 **0.5新例子**：[平均数能说明什么？](https://b.pluoluo.top/learning-skills/mean-evidence/) 用连续工作台保存构造、修改和解释，没有选择题页。数值条件可核对，文字理由保留为待人工复核；不代表真实孩子学习效果已验证。
 
@@ -60,11 +60,23 @@
 
 ```bash
 node skills/interactive-topic-lesson/scripts/check-plans.mjs /path/to/private/author
+node skills/interactive-topic-lesson/scripts/check-plans.mjs /path/to/private/author --require-approved
+node skills/interactive-topic-lesson/scripts/screen-copy.mjs /path/to/private/author/presentation-plan.md --screens s1,s2
+node skills/interactive-topic-lesson/scripts/build.mjs /path/to/private/lesson.json --out /path/to/build --require-plans /path/to/private/author
 node skills/interactive-topic-lesson/scripts/self-test.mjs
 npm test
 ```
 
-结构检查检查文件、修订号、审核记录和必填项是否存在，不做语义评分，也不校验冷读是否真实执行。字段名及写法见模板：`修订号：`，`## 审核记录`，三问字段，以及`学生可见题面原文：`、`冷读者与上下文：`、`冷读复述：`、`逐条理解偏差与修改：`、`术语与数字情境检查：`、`呈现审核结论：`；字段首行填实际内容，可继续分行展开。合成[合格结构fixture](skills/interactive-topic-lesson/scripts/fixtures/plans/valid)可直接作为检查脚本的目录输入；同目录的missing-review、missing-cold-read和missing-weakest分别演示拒绝与缺项提示。它们只用于测结构，不是假装完成的教学审核。
+结构检查检查文件、修订号、审核记录和必填项是否存在，不做语义评分，也不校验冷读是否真实执行。字段名及写法见模板；0.6.1支持标签后换行、空行、段落、列表和代码块，空字段与仅注释仍拒绝。合成[合格结构fixture](skills/interactive-topic-lesson/scripts/fixtures/plans/valid)可直接作为检查脚本的目录输入；同目录的missing-review、missing-cold-read和missing-weakest分别演示拒绝与缺项提示。它们只用于测结构，不是假装完成的教学审核。
+
+### 0.6.0 → 0.6.1 的变化
+
+- 冷读明确为实现前硬审；呈现审核增加固定的“答案泄露自检”：可见文字是否包含待填答案或中间结果，是否开局已经给出目标答案，标题是否和目标冲突。数学正确、schema通过和浏览器可操作不能替代它。
+- 屏幕原文集中在呈现计划的一个`student-facing-copy` JSON块，含各屏幕状态的标题、题面、按钮、图中标签、状态说明和反馈。冷读和实现核对都由`screen-copy.mjs`抽取这份来源，不再各手写一版；动态渲染仍须用实际浏览器逐屏核对，工具不会自动判断DOM与计划一致。
+- 修改后必须二轮重读，可以只抽取改过的屏及跨屏引用，保留实际新发现，控制重复阅读成本。模板保留历史发现，新整理文案标为待补，不冒称已经重读通过。
+- 新课最终构建使用`--require-plans 作者目录`，缺项或三项审核结论未明确“通过”时拒绝写文件，并保存私有`plans-check.json`，绑定课件、计划与文案摘要。`--require-approved`可在实现前检查作者声明。默认构建及旧课件兼容方式保留。
+
+这道门槛不监控编辑器，也不能证明画布草稿写在审核之后。回执明确`chronologyVerified:false`；先有画布的偏离仍须在review中如实记录，不能靠回执补写成严格顺序。计划通过也不会自动将最终教学审核或学习效果标为通过。
 
 **旧平台适配提醒**：`evidenceTasks`在lesson根部，**不在special-study.json中**；旧平台仅导入content不会自动获得记录和数值核对能力，需明确实现宿主适配。不可补占位选择题来掩盖能力缺失；见[host-integration.md](skills/interactive-topic-lesson/references/host-integration.md)。
 

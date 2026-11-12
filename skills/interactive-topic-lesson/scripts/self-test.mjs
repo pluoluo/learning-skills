@@ -12,6 +12,8 @@ import { reviewScaffold } from './review.mjs';
 import { startLessonServer, controlService } from './serve.mjs';
 import { validatePlan, checkBrowser } from './check-browser.mjs';
 import { checkPlans } from './check-plans.mjs';
+import { parseScreenCopy, extractScreenCopy, screenCopyDigest } from './screen-copy.mjs';
+import { createHash } from 'node:crypto';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import { fileURLToPath } from 'node:url';
@@ -48,7 +50,7 @@ test('author plan fixtures pass structure only; missing review, cold read and we
   const absent = await checkPlans(path.join(tmp, 'no-plans'));
   assert.deepEqual(absent.errors, ['teaching-plan.md: 缺少文件', 'presentation-plan.md: 缺少文件']);
   const run = promisify(execFile), script = fileURLToPath(new URL('./check-plans.mjs', import.meta.url));
-  assert.match((await run(process.execPath, [script, path.join(planFixtures, 'valid')])).stdout, /结构检查通过/);
+  assert.match((await run(process.execPath, [script, path.join(planFixtures, 'valid')])).stdout, /structure-only/);
   await assert.rejects(run(process.execPath, [script, path.join(planFixtures, 'missing-cold-read')]), error => error.code === 1 && error.stderr.includes('冷读复述'));
 });
 test('plan examples satisfy structure; empty or commented fields cannot substitute for records', async () => {
@@ -62,8 +64,89 @@ test('plan examples satisfy structure; empty or commented fields cannot substitu
   await writeFile(filename, original.replace(/^冷读复述[：:].*$/m, '冷读复述：   \n<!-- 冷读复述：不能用隐藏注释假装有记录 -->'));
   const result = await checkPlans(directory);assert.equal(result.ok, false);assert.ok(result.errors.some(error => error.includes('冷读复述')));
 });
-test('0.5.0 and 0.5.1 artifacts still validate and build without author plans', async () => {
-  for (const version of ['0.5.0', '0.5.1']) {
+async function copyPlanFixture(name) {
+  const directory=path.join(tmp,name);await mkdir(directory);
+  for (const file of ['teaching-plan.md','presentation-plan.md']) await writeFile(path.join(directory,file),await readFile(path.join(planFixtures,'valid',file),'utf8'));
+  return directory;
+}
+test('multiline plan records accept paragraphs, lists, fences and CRLF without swallowing an empty next field', async () => {
+  const directory=await copyPlanFixture('multiline-plans'),file=path.join(directory,'presentation-plan.md');
+  const original=await readFile(file,'utf8');
+  const changed=original.replace(/冷读复述：[\s\S]*?(?=逐条理解偏差与修改：)/,'冷读复述：\n\n我要做什么：摆一种分法。\n\n做完看到什么：看到数值核对，解释请人看。\n\n')
+    .replace(/答案泄露自检：[\s\S]*?(?=复读范围与结果：)/,'答案泄露自检：\n- s1标题没有给出分法。\n- s2状态没有显示待求答案。\n\n');
+  await writeFile(file,changed.replaceAll('\n','\r\n'));
+  assert.equal((await checkPlans(directory,{requireApproved:true})).ok,true);
+  await writeFile(file,changed.replace(/冷读复述：[\s\S]*?(?=逐条理解偏差与修改：)/,'冷读复述：\n```text\n我要摆出自己的分法。\n```\n\n'));
+  assert.equal((await checkPlans(directory)).ok,true);
+  for (const empty of ['冷读复述：\n\n','冷读复述：\n<!-- 只有隐藏注释 -->\n','冷读复述：\n```text\n```\n']) {
+    await writeFile(file,changed.replace(/冷读复述：[\s\S]*?(?=逐条理解偏差与修改：)/,empty));
+    const report=await checkPlans(directory);assert.equal(report.ok,false);assert.ok(report.errors.some(error=>error.includes('冷读复述')));
+  }
+});
+test('screen copy extraction preserves literal wording, selects changed screens and rejects ambiguous sources', async () => {
+  const source=await readFile(path.join(planFixtures,'valid','presentation-plan.md'),'utf8'),screens=parseScreenCopy(source);
+  const extracted=extractScreenCopy(screens);
+  assert.ok(extracted.includes(screens[0].text.h1));assert.ok(extracted.includes(screens[0].text.status));
+  assert.ok(!extracted.includes('合成测试声明'));assert.ok(!extracted.includes('答案泄露自检'));
+  const selected=extractScreenCopy(screens,['s2']);assert.ok(selected.includes(screens[1].text.prompt));assert.ok(!selected.includes(screens[0].text.prompt));
+  assert.throws(()=>extractScreenCopy(screens,['missing']),/未知/);
+  assert.throws(()=>parseScreenCopy(source+source),/只能有一个/);
+  assert.throws(()=>parseScreenCopy('<!--\n'+source+'\n-->'),/只能有一个/);
+  assert.throws(()=>parseScreenCopy(source.replace('"id": "s2"','"id": "s1"')),/唯一/);
+  assert.throws(()=>parseScreenCopy(source.replace('"state": "初始"','"goals": "不该进入冷读输入"')),/state/);
+  const literal=[{id:'literal',state:'初始',text:{h1:'字面 <!--可见文本--> $& `标题`',prompt:'第一行\n第二行'}}];
+  assert.deepEqual(parseScreenCopy('```student-facing-copy\n'+JSON.stringify(literal)+'\n```'),literal);
+  assert.ok(extractScreenCopy(literal).includes(literal[0].text.h1));
+  const updated=structuredClone(screens);updated[0].text.h1+='变化';assert.notEqual(screenCopyDigest(screens),screenCopyDigest(updated));
+  const run=promisify(execFile),script=fileURLToPath(new URL('./screen-copy.mjs',import.meta.url));
+  assert.equal((await run(process.execPath,[script,path.join(planFixtures,'valid','presentation-plan.md'),'--screens','s2'])).stdout,selected);
+  const output=path.join(tmp,'cold-read.txt');await run(process.execPath,[script,path.join(planFixtures,'valid','presentation-plan.md'),'--out',output]);
+  assert.equal(await readFile(output,'utf8'),extracted);
+  await assert.rejects(run(process.execPath,[script,path.join(planFixtures,'valid','presentation-plan.md'),'--out',output]));
+});
+test('required plans reject missing, pending and returned reviews before writing or overwriting builds', async () => {
+  const directory=await copyPlanFixture('gate-plans'),file=path.join(directory,'presentation-plan.md');
+  const original=await readFile(file,'utf8');
+  const output=path.join(tmp,'gated-output');
+  await assert.rejects(buildLesson(lesson(),output,{requirePlans:path.join(tmp,'absent-author')}),/缺少文件/);
+  await assert.rejects(readFile(path.join(output,'index.html')), {code:'ENOENT'});
+  const built=await buildLesson(lesson(),output,{requirePlans:directory});assert.ok(built.files.includes('plans-check.json'));
+  const page=await readFile(path.join(output,'index.html'),'utf8');
+  const receipt=JSON.parse(await readFile(path.join(output,'plans-check.json'),'utf8'));
+  assert.equal(receipt.artifactSha256,validateLesson(lesson()).artifactSha256);
+  assert.equal(receipt.planSha256['presentation-plan.md'],createHash('sha256').update(original).digest('hex'));
+  assert.equal(receipt.screenCopySha256,screenCopyDigest(parseScreenCopy(original)));
+  assert.equal(receipt.chronologyVerified,false);assert.equal(receipt.scope,'structure-and-author-declarations-only');
+  assert.equal(JSON.parse(await readFile(path.join(output,'review.json'),'utf8')).checks.subject.status,'not_run');
+  assert.ok(!page.includes(receipt.screenCopySha256));assert.ok(!page.includes(original));
+  for (const [field,value] of [['冷读审核结论','待补'],['冷读审核结论','通过不了'],['呈现审核结论','退回']]) {
+    await writeFile(file,original.replace(field+'：通过',field+'：'+value));
+    assert.equal((await checkPlans(directory)).ok,true);
+    await assert.rejects(buildLesson(lesson(),output,{force:true,requirePlans:directory}),/未明确通过/);
+    assert.equal(await readFile(path.join(output,'index.html'),'utf8'),page);
+    assert.deepEqual(JSON.parse(await readFile(path.join(output,'plans-check.json'),'utf8')),receipt);
+  }
+  await writeFile(file,original.replace(/^答案泄露自检：[\s\S]*?(?=复读范围与结果：)/m,''));
+  await assert.rejects(buildLesson(lesson(),output,{force:true,requirePlans:directory}),/答案泄露自检/);
+  await writeFile(file,original);
+  const teachingFile=path.join(directory,'teaching-plan.md'),teaching=await readFile(teachingFile,'utf8');
+  await writeFile(teachingFile,teaching.replace('内容审核结论：通过','内容审核结论：待补'));
+  await assert.rejects(buildLesson(lesson(),output,{force:true,requirePlans:directory}),/内容审核结论未明确通过/);
+  await buildLesson(lesson(),output,{force:true});
+  await assert.rejects(readFile(path.join(output,'plans-check.json')), {code:'ENOENT'});
+});
+test('build CLI enforces its optional gate while unflagged legacy builds retain six artifacts', async () => {
+  const run=promisify(execFile),script=fileURLToPath(new URL('./build.mjs',import.meta.url));
+  const input=path.join(tmp,'gate-lesson.json');await writeFile(input,JSON.stringify(lesson()));
+  const required=path.join(tmp,'cli-required');
+  const result=JSON.parse((await run(process.execPath,[script,input,'--out',required,'--require-plans',path.join(planFixtures,'valid')])).stdout);
+  assert.equal(result.files.length,7);
+  await assert.rejects(run(process.execPath,[script,input,'--out',path.join(tmp,'cli-invalid'),'--require-plans',path.join(planFixtures,'missing-cold-read')]),error=>error.code===1&&error.stderr.includes('冷读复述'));
+  await assert.rejects(run(process.execPath,[script,input,'--out',path.join(tmp,'cli-no-arg'),'--require-plans','--force']));
+  const legacy=JSON.parse((await run(process.execPath,[script,input,'--out',path.join(tmp,'cli-legacy')])).stdout);assert.equal(legacy.files.length,6);
+});
+test('0.5.0, 0.5.1 and 0.6.0 artifacts still validate and build without author plans', async () => {
+  for (const version of ['0.5.0', '0.5.1', '0.6.0']) {
     const input=trainingLesson();input.skillVersion=version;
     assert.equal(validateLesson(input).ok,true);
     const directory=path.join(tmp,'legacy-'+version);await buildLesson(input,directory);
@@ -229,13 +312,13 @@ test('browser runner requires observable coverage, and missing engine stays not_
   assert.equal(report.status,'not_run');assert.equal(report.cases.length,0);assert.ok(report.error);
 });
 test('host serves only its lesson, keeps control private, and revises without changing URL',async () => {
-  const output=path.join(tmp,'served-build');await buildLesson(lesson(),output);
+  const output=path.join(tmp,'served-build');await buildLesson(lesson(),output,{requirePlans:path.join(planFixtures,'valid')});
   const state=path.join(tmp,'delivery.json');const service=await startLessonServer({lesson:path.join(output,'index.html'),state});
   try {
     const info=service.record();assert.equal(info.audience,'author-preview-only');
     const response=await fetch(info.url);const page=await response.text();assert.equal(response.status,200);assert.ok(page.includes('边界与内部'));assert.ok(page.includes(info.expiresAt));assert.ok(!page.includes(info.stopToken));
     const base=new URL(info.url).origin;
-    for(const suffix of ['/','/lesson.json','/special-study.json','/delivery.json','/review.json','/LICENSE','/../lesson.json']) assert.equal((await fetch(base+suffix)).status,404);
+    for(const suffix of ['/','/lesson.json','/special-study.json','/delivery.json','/review.json','/plans-check.json','/LICENSE','/../lesson.json']) assert.equal((await fetch(base+suffix)).status,404);
     assert.equal((await fetch(base+'/__agent/control',{method:'POST',body:'{}'})).status,403);
     assert.equal((await fetch(info.url,{method:'HEAD'})).status,200);
     assert.equal((await fetch(info.url,{method:'POST'})).status,404);

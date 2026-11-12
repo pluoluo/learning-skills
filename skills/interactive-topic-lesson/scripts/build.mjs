@@ -1,17 +1,24 @@
 #!/usr/bin/env node
-import { mkdir, readFile, writeFile, access } from 'node:fs/promises';
+import { mkdir, readFile, writeFile, access, rm } from 'node:fs/promises';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { readLesson, validateLesson, isolatedCanvas, safeJson, gradeAnswers, publicQuestions } from './lib.mjs';
 import { evaluateEvidence, appendEvidence } from './evidence.mjs';
 import { reviewScaffold, validateReview, publicReview } from './review.mjs';
+import { checkPlans } from './check-plans.mjs';
 
-export async function buildLesson(lesson, output, { force = false, review } = {}) {
+export async function buildLesson(lesson, output, { force = false, review, requirePlans } = {}) {
   const validation = validateLesson(lesson);
   if (!validation.ok) throw new Error(validation.errors.join('\n'));
   const checkedReview = review ? validateReview(review, validation) : reviewScaffold(validation);
+  let plans;
+  if (requirePlans !== undefined) {
+    if (typeof requirePlans !== 'string' || !requirePlans.trim()) throw new Error('requirePlans must be a private author directory');
+    plans = await checkPlans(requirePlans, { requireApproved: true });
+    if (!plans.ok) throw new Error('Required plans rejected:\n' + plans.errors.join('\n'));
+  }
   const files = ['index.html', 'lesson.json', 'special-study.json', 'validation.json', 'LICENSE', 'review.json'];
-  if (!force) for (const file of files) {
+  if (!force) for (const file of [...files, 'plans-check.json']) {
     const exists = await access(path.join(output, file)).then(() => true, () => false);
     if (exists) throw new Error(`${file} exists; choose another output directory or use --force for an intended rebuild`);
   }
@@ -24,17 +31,23 @@ export async function buildLesson(lesson, output, { force = false, review } = {}
   await mkdir(output, { recursive: true });
   const contents = [html, JSON.stringify(lesson, null, 2) + '\n', JSON.stringify(lesson.content, null, 2) + '\n', JSON.stringify(validation, null, 2) + '\n', license, JSON.stringify(checkedReview, null, 2) + '\n'];
   for (const [index, file] of files.entries()) await writeFile(path.join(output, file), contents[index], { flag: force ? 'w' : 'wx' });
+  if (plans) {
+    const receipt = { format: 'interactive-topic-lesson.plans-check.v1', artifactSha256: validation.artifactSha256, ...plans };
+    await writeFile(path.join(output, 'plans-check.json'), JSON.stringify(receipt, null, 2) + '\n', { flag: force ? 'w' : 'wx' });
+    files.push('plans-check.json');
+  } else if (force) await rm(path.join(output, 'plans-check.json'), { force: true });
   return { ok: true, output: path.resolve(output), files, artifactSha256: validation.artifactSha256 };
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(path.resolve(process.argv[1])).href) {
   try {
     const args = process.argv.slice(2);
-    if (args.length < 3 || args[1] !== '--out') throw new Error('Usage: node build.mjs lesson.json --out /path/to/output [--force] [--review report.json]');
+    if (args.length < 3 || args[1] !== '--out') throw new Error('Usage: node build.mjs lesson.json --out /path/to/output [--force] [--review report.json] [--require-plans /path/to/author]');
     const options = { force: false };
     for (let i = 3; i < args.length; i++) {
       if (args[i] === '--force' && !options.force) options.force = true;
       else if (args[i] === '--review' && args[i + 1] && !options.review) options.review = JSON.parse(await readFile(args[++i], 'utf8'));
+      else if (args[i] === '--require-plans' && args[i + 1] && !args[i + 1].startsWith('--') && !options.requirePlans) options.requirePlans = args[++i];
       else throw new Error(`Unknown or incomplete option: ${args[i]}`);
     }
     console.log(JSON.stringify(await buildLesson(await readLesson(args[0]), args[2], options), null, 2));

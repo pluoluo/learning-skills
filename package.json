@@ -1,6 +1,6 @@
 {
   "name": "learning-skills",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "private": true,
   "type": "module",
   "description": "Portable teaching skills and interactive learning artifacts for AI agents",

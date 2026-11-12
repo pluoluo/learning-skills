@@ -4,7 +4,7 @@ license: MIT
 description: Create interactive topic learning and practice in Chinese, mathematics or English through one entry point, loading the matching subject guidance. By default, deploy locally and deliver one LAN URL for a tablet on the same network; the agent owns later revisions. Use for 互动专题、互动小课、专题训练、知识点探索; printable exam layout is separate.
 metadata:
   author: pluoluo
-  version: "0.6.0"
+  version: "0.6.1"
 ---
 
 # Interactive topic lesson
@@ -47,7 +47,7 @@ For a new lesson or a substantive teaching revision, follow [references/authorin
 
 Keep teaching-plan.md and presentation-plan.md in the private author workspace, with their actual review findings and revisions. The first plan includes the essential relationships and conditions, explanations in learner-facing language, concrete materials, meaningful likely responses, feedback and a new-case task. Choose depth appropriate to the goal and learner; do not equate it with harder vocabulary, more rules or more questions. The second plan maps that reviewed content to what the learner sees, changes and must figure out. Do not start lesson-specific HTML/CSS/JS before both plans have resolved their material review findings. Environment discovery can proceed independently.
 
-The content review must answer the three task-authenticity questions; the presentation review must retain complete student-facing wording, a cold reader's action/result paraphrase without design context, each misunderstanding and actual wording fix, and terminology/natural-number-context checks. See the required sections and one-page templates in authoring-process.md. Missing records return the plan for revision. Run scripts/check-plans.mjs on the private author directory before implementation; it checks structure only and is not a compiler/build prerequisite for old lessons. Cold reading is development self-review, never a claim of independent teaching review or real learner validation.
+The content review must answer the three task-authenticity questions. Cold reading without design context is a hard pre-implementation review: retain its action/result paraphrase, wording fixes, terminology/natural-number-context checks, an explicit answer-leakage check and a review conclusion. After edits, reread the changed screens and cross-screen references. Keep all visible wording in one private student-facing-copy block in presentation-plan.md; scripts/screen-copy.mjs extracts the same source for cold reading and actual-render comparison, including titles, status lines, hints and intermediate quantities. See authoring-process.md and its templates. Run scripts/check-plans.mjs author-directory --require-approved before implementation. Missing, returned or pending reviews do not allow implementation. Cold reading is development self-review, never independent teaching review or real learner validation.
 
 The agent performs these reviews by default without waiting for parent approval. A separate self-review pass must identify itself honestly; do not invent independent reviewers, learner observations or semantic passes from schema checks. Follow a user-requested planning/approval stop when provided. A small implementation-only repair can reuse the relevant reviewed plans; revise teaching and downstream plans when its meaning, evidence or support changes.
 
@@ -90,10 +90,12 @@ From the installed skill directory, run:
 ```bash
 node scripts/compile.mjs /path/to/author/lesson.source.json --out /path/to/private/lesson.json
 node scripts/validate.mjs /path/to/private/lesson.json
-node scripts/build.mjs /path/to/private/lesson.json --out /path/to/private/build
+node scripts/build.mjs /path/to/private/lesson.json --out /path/to/private/build --require-plans /path/to/author
 ```
 
 Resolve scripts relative to this SKILL.md; do not assume the user is in the skill directory. Write results to the requested workspace, not into the installed skill. The builder refuses existing output files unless --force is supplied for an intended rebuild.
+
+For new lessons and substantive teaching revisions, use --require-plans at final build. It rejects missing records or author conclusions that are not explicitly passed, and retains a private plans-check.json linking artifact, plan and screen-copy digests. It does not prove review authenticity, semantic quality or historical order (chronologyVerified:false); record any canvas-before-plan deviation honestly in review.json subject.evidence. Legacy lessons may still build without this optional flag and need no retroactive plans; portable lesson/review schemas are unchanged.
 
 Validation checks structure, references, classic script syntax and some dependency hazards. Its report does not establish teaching correctness or browser behavior. Review the actual implemented content against the reviewed teaching/presentation plans, selected subject guide, learning-design.md and teaching.md. Trace the central explanation and most demanding task through concrete learner responses; check for lost conditions, answer-revealing presentation and feedback that bypasses reasoning. In private review.json subject evidence, identify the plan revisions and performed checks, including the weakest case, resolved findings and any outcome the interactions cannot establish. Prior plan passes do not pass the implementation. Record browser/learner checks separately; never replace not_run with passed without evidence. If a browser is available, exercise the primary operation, distinct wrong options where present, a hint or reset, new-example checks, learning-summary interpretation and keyboard interaction at the requested sizes. The default shipped sizes are 1000×600 and 1920×1080 CSS pixels; adapt them when the user requests another context.
 
