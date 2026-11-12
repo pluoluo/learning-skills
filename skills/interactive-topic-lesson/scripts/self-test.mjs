@@ -11,6 +11,10 @@ import { buildLesson } from './build.mjs';
 import { reviewScaffold } from './review.mjs';
 import { startLessonServer, controlService } from './serve.mjs';
 import { validatePlan, checkBrowser } from './check-browser.mjs';
+import { checkPlans } from './check-plans.mjs';
+import { execFile } from 'node:child_process';
+import { promisify } from 'node:util';
+import { fileURLToPath } from 'node:url';
 
 const tmp = await mkdtemp(path.join(os.tmpdir(), 'topic-lesson-test-'));
 after(async () => {
@@ -33,6 +37,40 @@ function trainingLesson() {
   ],progression:'由标明位置的比较进入未标明所量范围的新例子。',evidencePolicy:'首次检查和看过解释后的重试分开；仅报告本页任务，不宣称整个专题掌握。'};
   return input;
 }
+const planFixtures = fileURLToPath(new URL('./fixtures/plans/', import.meta.url));
+test('author plan fixtures pass structure only; missing review, cold read and weakest task name exact omissions', async () => {
+  const valid = await checkPlans(path.join(planFixtures, 'valid'));
+  assert.equal(valid.ok, true);assert.equal(valid.scope, 'structure-only');
+  for (const [fixture, expected] of [['missing-review', '审核记录'], ['missing-cold-read', '冷读复述'], ['missing-weakest', '最薄弱任务']]) {
+    const result = await checkPlans(path.join(planFixtures, fixture));
+    assert.equal(result.ok, false);assert.ok(result.errors.some(error => error.includes(expected)), result.errors.join('\n'));
+  }
+  const absent = await checkPlans(path.join(tmp, 'no-plans'));
+  assert.deepEqual(absent.errors, ['teaching-plan.md: 缺少文件', 'presentation-plan.md: 缺少文件']);
+  const run = promisify(execFile), script = fileURLToPath(new URL('./check-plans.mjs', import.meta.url));
+  assert.match((await run(process.execPath, [script, path.join(planFixtures, 'valid')])).stdout, /结构检查通过/);
+  await assert.rejects(run(process.execPath, [script, path.join(planFixtures, 'missing-cold-read')]), error => error.code === 1 && error.stderr.includes('冷读复述'));
+});
+test('plan examples satisfy structure; empty or commented fields cannot substitute for records', async () => {
+  const directory = path.join(tmp, 'plan-templates');await mkdir(directory);
+  for (const name of ['teaching', 'presentation']) {
+    await writeFile(path.join(directory, name+'-plan.md'), await readFile(new URL('../references/'+name+'-plan.example.md', import.meta.url), 'utf8'));
+  }
+  assert.equal((await checkPlans(directory)).ok, true);
+  const filename = path.join(directory, 'presentation-plan.md');
+  const original = await readFile(filename, 'utf8');
+  await writeFile(filename, original.replace(/^冷读复述[：:].*$/m, '冷读复述：   \n<!-- 冷读复述：不能用隐藏注释假装有记录 -->'));
+  const result = await checkPlans(directory);assert.equal(result.ok, false);assert.ok(result.errors.some(error => error.includes('冷读复述')));
+});
+test('0.5.0 and 0.5.1 artifacts still validate and build without author plans', async () => {
+  for (const version of ['0.5.0', '0.5.1']) {
+    const input=trainingLesson();input.skillVersion=version;
+    assert.equal(validateLesson(input).ok,true);
+    const directory=path.join(tmp,'legacy-'+version);await buildLesson(input,directory);
+    assert.equal(JSON.parse(await readFile(path.join(directory,'lesson.json'),'utf8')).skillVersion,version);
+    assert.deepEqual(JSON.parse(await readFile(path.join(directory,'special-study.json'),'utf8')),input.content);
+  }
+});
 test('new lessons require a valid coverage design; training needs aligned feedback for every option',()=>{
   assert.equal(validateLesson(trainingLesson()).ok,true);
   const noDesign=trainingLesson();delete noDesign.learningDesign;assert.equal(validateLesson(noDesign).ok,false);
@@ -147,9 +185,9 @@ test('player has one direct check, no pre-result retry, and invalidates only an 
   const window={innerHeight:600,addEventListener:(name,handler)=>{messages[name]=handler;}};
   const sandbox={document,window,ResizeObserver:class{observe(){}},console};
   for(const match of built.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script\s*>/gi))new vm.Script(match[1]).runInNewContext(sandbox);
-  assert.equal(sandbox.formatFeedback(true,'对。 这个表达符合情境。'),'这题选对了。 这个表达符合情境。');
-  assert.equal(sandbox.formatFeedback(false,'错。 这里漏掉了条件。'),'这题还没选对。 这里漏掉了条件。');
-  assert.equal(sandbox.formatFeedback(true,'对比两处条件可以找到依据。'),'这题选对了。 对比两处条件可以找到依据。');
+  assert.equal(sandbox.formatFeedback(true,'对。 这个表达符合情境。'),'答对了。\n这个表达符合情境。');
+  assert.equal(sandbox.formatFeedback(false,'错。 这里漏掉了条件。'),'还没答对。\n这里漏掉了条件。');
+  assert.equal(sandbox.formatFeedback(true,'对比两处条件可以找到依据。'),'答对了。\n对比两处条件可以找到依据。');
   const reset=ids.get('reset-test'),check=ids.get('check-test'),result=ids.get('result');
   // A canvas can also submit the formal check through the supported message API.
   // Seeing that feedback must count before a later check through the outer UI.
@@ -162,7 +200,7 @@ test('player has one direct check, no pre-result retry, and invalidates only an 
   pick('fence',0);assert.equal(ids.get('feedback-fence').textContent,'');assert.equal(reset.hidden,true);
   pick('fence',1);pick('inside',1);assert.ok(result.textContent.includes('每题都已选择'));
   check.events.click();assert.ok(result.textContent.includes('1/2'));assert.equal(reset.hidden,false);
-  assert.ok(ids.get('feedback-fence').textContent.includes('还没选对'));
+  assert.ok(ids.get('feedback-fence').textContent.startsWith('还没答对。\n'));
   assert.ok(ids.get('feedback-fence').textContent.includes('内部大小'));
   const summaryText=()=>ids.get('practice-summary').children.map(child=>child.textContent).join(' ');
   assert.ok(summaryText().includes('完整边界与内部：首次检查选对 0/1'));

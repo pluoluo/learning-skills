@@ -150,10 +150,10 @@ for (const viewport of [{width:1000,height:600},{width:1920,height:1080}]) {
     // Tab navigation/locator focus scrolls the question region, while the action stays in place.
     for(const question of await page.locator('fieldset').all())await question.locator('input').nth(1).check();
     await page.locator('#check-test').click();await expect(page.locator('#result')).toContainText('0/6');
-    await expect(page.locator('#feedback-long_0')).toHaveText('这题还没选对。 She 指一个人，这里应使用 watches；比较主语变化前后的动词形式。');
+    await expect(page.locator('#feedback-long_0')).toHaveText('还没答对。\nShe 指一个人，这里应使用 watches；比较主语变化前后的动词形式。');
     const checked=await measure();expect(checked.documentHeight).toBeLessThanOrEqual(viewport.height+1);expect(checked.actions.bottom).toBeLessThanOrEqual(checked.main.bottom+1);expect(checked.result.bottom).toBeLessThanOrEqual(checked.main.bottom+1);
     await page.locator('input[name="long_0"]').first().check();await expect(page.locator('#feedback-long_0')).toBeEmpty();await page.locator('#check-test').click();
-    await expect(page.locator('#feedback-long_0')).toHaveText('这题选对了。 She 指一个人，这里用 watches。请对照主语和整个句子。');
+    await expect(page.locator('#feedback-long_0')).toHaveText('答对了。\nShe 指一个人，这里用 watches。请对照主语和整个句子。');
     await expect(page.locator('#practice-summary')).toContainText('首次检查选对 0/6');
     await page.locator('#quiz-scroll').focus();await page.keyboard.press('End');
     await expect.poll(()=>page.locator('#quiz-scroll').evaluate(element=>element.scrollHeight-element.scrollTop-element.clientHeight)).toBeLessThanOrEqual(1);

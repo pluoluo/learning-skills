@@ -14,6 +14,8 @@ Keep the early explanation short enough to leave the main operation visible. Exp
 
 For a consequential wrong attempt, explain the learner's selected answer: what it captures, where it fails relative to evidence, and one useful revision move. A shared question pointing only at the correct answer is insufficient. Give concise reasoning before retry; an optional fuller explanation can reveal and compare answers. Keep first checked responses, item-hinted responses and retries distinguishable without adding identity tracking or inflating a final score into independent success. Use learning-design.md to review strategy, coverage and progression across the topic.
 
+Before accepting the content, answer the three required task-authenticity questions in [authoring-process.md](authoring-process.md#任务真实性三问必答): can this task be answered incorrectly, which is the weakest task and can recitation/trial-and-error solve it, and what new ability does the learner actually get to exercise? An invariant guaranteed by supplied conditions is a demonstration, not independent evidence. Prefer the smallest natural case that distinguishes the target confusion, rather than extreme numbers chosen to manufacture difficulty.
+
 ## Make each operation clear and necessary
 
 - Distinguish not selected, selected but unchecked, checked, and changed after checking. Feedback must describe the actual learning action and, only where needed, the concrete next action. A visual selected state can be sufficient; avoid empty acknowledgments such as “已修改。可以再核对，也可以继续回看。”
@@ -35,6 +37,8 @@ The tablet viewport is not the canvas budget. At 1000×600 CSS px, the standalon
 Keep the main learning object, its essential controls and current feedback accessible within that allocation where practical. Reorganize or progressively disclose secondary help; allow deliberate scrolling for longer explanations rather than shrinking touch targets or clipping core content. Test both closed and expanded help, feedback after an error, view switching and round-trip resizing. A compact-height branch can help, but choose it from the content's available allocation rather than prescribing a universal 437px or 700px limit. Avoid a height-feedback loop by deriving layout from the host's stable viewport message, not the iframe's own growing document height. Contract.md defines the message.
 
 ## Let the player supply formal-check judgments
+
+Every judged response must begin with an immediately readable verdict on its own line, then a short response-specific reason and a useful next move. For choices, use “答对了” / “还没答对”; for numeric constructions, scope the verdict to the declared numerical requirements, never the ungraded explanation. Invalid input is “还不能判断”, a save failure is “未保存”, and an open explanation is “待人工复核”, not a fabricated right/wrong answer. This also applies to canvas-authored feedback, whose wording the author must implement and review. Editing a response invalidates the old verdict immediately. Longer explanation may be disclosed separately.
 
 In content.test, explanation and optionFeedback should explain the response with evidence and a useful next move. The standalone player adds the correctness status itself. Start directly with the reason, such as “Tom 指一个人，play 在这里变成 plays…”, rather than “对。…” or “回答正确。…”. The same applies to incorrect-option explanations: explain the selected error rather than repeating “错。…”. Canvas-authored feedback controls its own wording and is separate from these formal-check fields.
 

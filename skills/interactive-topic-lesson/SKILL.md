@@ -4,7 +4,7 @@ license: MIT
 description: Create interactive topic learning and practice in Chinese, mathematics or English through one entry point, loading the matching subject guidance. By default, deploy locally and deliver one LAN URL for a tablet on the same network; the agent owns later revisions. Use for 互动专题、互动小课、专题训练、知识点探索; printable exam layout is separate.
 metadata:
   author: pluoluo
-  version: "0.5.1"
+  version: "0.6.0"
 ---
 
 # Interactive topic lesson
@@ -47,6 +47,8 @@ For a new lesson or a substantive teaching revision, follow [references/authorin
 
 Keep teaching-plan.md and presentation-plan.md in the private author workspace, with their actual review findings and revisions. The first plan includes the essential relationships and conditions, explanations in learner-facing language, concrete materials, meaningful likely responses, feedback and a new-case task. Choose depth appropriate to the goal and learner; do not equate it with harder vocabulary, more rules or more questions. The second plan maps that reviewed content to what the learner sees, changes and must figure out. Do not start lesson-specific HTML/CSS/JS before both plans have resolved their material review findings. Environment discovery can proceed independently.
 
+The content review must answer the three task-authenticity questions; the presentation review must retain complete student-facing wording, a cold reader's action/result paraphrase without design context, each misunderstanding and actual wording fix, and terminology/natural-number-context checks. See the required sections and one-page templates in authoring-process.md. Missing records return the plan for revision. Run scripts/check-plans.mjs on the private author directory before implementation; it checks structure only and is not a compiler/build prerequisite for old lessons. Cold reading is development self-review, never a claim of independent teaching review or real learner validation.
+
 The agent performs these reviews by default without waiting for parent approval. A separate self-review pass must identify itself honestly; do not invent independent reviewers, learner observations or semantic passes from schema checks. Follow a user-requested planning/approval stop when provided. A small implementation-only repair can reuse the relevant reviewed plans; revise teaching and downstream plans when its meaning, evidence or support changes.
 
 For a reported difficulty or a request for training, use training mode and record learningDesign: a concise strategy, a coverage map of relevant confusions and contrasts, the linked operations and new checks, progression, and how first checks/hints/retries will be interpreted. Do not assume one demonstration covers a topic. A curiosity-led exploration can use exploration mode and a narrower stated scope without claiming weakness coverage. New 0.3+ lessons require this design; older artifacts remain supported.
@@ -68,6 +70,8 @@ Keep formal choice keys out of the canvas. Use advertised requestTest/evidence c
 ## Implement the reviewed presentation
 
 Transfer the reviewed decisions into lesson.source.json objectives/learningDesign/evidence tasks without reducing them to satisfy the available controls or grader. If implementation cannot preserve a material learning requirement, revise and re-review the affected plan before continuing; do not silently replace it with recognition choices or a saved but unsupported explanation box.
+
+If implementation review finds a lost condition or an answer-revealing default/hint (including an auto-filled prediction), revise and re-review presentation-plan.md before rechecking the code; revise teaching-plan too when its meaning changes. Record implementation-versus-plan differences in review.json subject.evidence using the documented string labels; do not repair code alone and carry forward an obsolete plan pass. All judging feedback, including custom canvas feedback, starts with a clear scoped verdict before its explanation; open explanations stay pending review.
 
 Use one author source: lesson.source.json plus its referenced canvas.html. Compile these into portable lesson.json; generated build products are not separate editing targets. Create complete inline HTML/CSS/classic JavaScript in canvas.html; compilation embeds it under content.canvas.html. The first screen must make the learning action clear and operable. Provide a concise method or worked help when it supports the task; for discovery, give a clear goal and constraints without disclosing the relationship being investigated. Let learners change, compare, construct or express something, see consequences and try again. On an error, explain what the response captures and where it fails using task evidence, then offer a concrete revision move. Support hints, revisiting and stopping without forcing a sequence of perfect answers. Keep controls operable by touch and keyboard; provide a click alternative to dragging.
 

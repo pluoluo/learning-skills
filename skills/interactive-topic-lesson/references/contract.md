@@ -8,6 +8,8 @@ Keep author/lesson.source.json and its referenced canvas.html as the editable so
 
 From skill 0.5.1, new authoring also keeps private teaching-plan.md and presentation-plan.md with their respective review findings before lesson-specific web implementation; see [authoring-process.md](authoring-process.md). They are pedagogical design inputs, not alternative executable sources or additional learner deliverables. The portable schema and existing lesson compatibility are unchanged; these files are not embedded or verified semantically by the compiler.
 
+0.6 adds required task-authenticity and cold-read records with a separate `scripts/check-plans.mjs author-directory` structure check. It does not gate compile/validate/build, require plans for old 0.5.0/0.5.1 artifacts, or change the artifact/review schemas. Subject-review string evidence labels and implementation/plan differences are documented in authoring-process.md; completed implementation still needs its own review.
+
 ## A lesson without choice questions
 
 ```json

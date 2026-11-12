@@ -14,7 +14,7 @@ body>main{flex:1;display:flex;flex-direction:column;min-width:0;min-height:0;ove
 #quiz{flex:1;min-height:0;display:flex;flex-direction:column;overflow:hidden;padding:16px 24px}#quiz h2{font-size:24px;line-height:1.4;margin:0 0 4px}.muted{color:var(--muted);font-size:16px;line-height:1.5;margin:0 0 12px}
 #quiz-scroll{flex:1;min-height:0;overflow:auto;overscroll-behavior:contain;scrollbar-gutter:stable;padding:3px 5px 6px 3px}#questions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;align-content:start;align-items:start}
 .question-card:last-child:nth-child(odd){grid-column:1/-1}.question-card{min-width:0;border:1px solid var(--line);border-radius:var(--radius);background:var(--paper);padding:16px}fieldset{min-width:0;width:100%;border:0;padding:0;margin:0}legend{width:100%;font-weight:750;line-height:1.5;padding:0;margin:0 0 10px;overflow-wrap:anywhere}
-.choice{display:flex;align-items:center;gap:12px;min-height:48px;padding:6px 10px;border-radius:10px;cursor:pointer;overflow-wrap:anywhere}.choice:has(input:checked){background:#e5eaff}.choice input{width:20px;height:20px;flex:none;accent-color:var(--blue)}.question-feedback{color:var(--muted);margin:12px 0 0;overflow-wrap:anywhere}.question-feedback:empty{display:none}
+.choice{display:flex;align-items:center;gap:12px;min-height:48px;padding:6px 10px;border-radius:10px;cursor:pointer;overflow-wrap:anywhere}.choice:has(input:checked){background:#e5eaff}.choice input{width:20px;height:20px;flex:none;accent-color:var(--blue)}.question-feedback{color:var(--muted);margin:12px 0 0;overflow-wrap:anywhere;white-space:pre-line}.question-feedback::first-line{font-weight:750;color:var(--ink)}.question-feedback:empty{display:none}
 .quiz-actions{flex:none;display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-top:12px}#check-test{background:var(--blue);color:#fff;border-color:var(--blue)}#result{flex:none;font-size:16px;line-height:1.5;font-weight:700;margin:8px 0 0;overflow-wrap:anywhere}#result:empty{display:none}#practice-summary{font-size:16px;line-height:1.6;margin-top:16px;padding:0 4px}#practice-summary p{margin:0 0 10px}
 footer{padding:10px 24px;color:var(--muted);font-size:14px;border-top:1px solid var(--line);max-height:40dvh;overflow:auto}footer details{margin-top:2px}footer summary{cursor:pointer;min-height:32px}footer details p{margin:8px 0}[hidden]{display:none!important}
 #record-view{flex:1;min-height:0;display:flex;flex-direction:column;overflow:hidden;padding:16px 24px}#record-view h2{font-size:24px;line-height:1.4;margin:0 0 4px}#record-scroll{flex:1;min-height:0;overflow:auto;overscroll-behavior:contain;padding:4px;scrollbar-gutter:stable}.evidence-entry{max-width:76ch;padding:16px 0;border-bottom:1px solid var(--line)}.evidence-entry h3{font-size:20px;margin:0 0 6px}.evidence-entry p{margin:6px 0}.evidence-entry pre{font:inherit;white-space:pre-wrap;overflow-wrap:anywhere;background:var(--paper);padding:10px;margin:4px 0 10px;border-radius:8px}.evidence-entry ul{padding-left:24px}.evidence-values{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}.evidence-values p{font-size:15px;color:var(--muted)}.evidence-text{grid-column:1/-1}.record-meta{font-size:15px;color:var(--muted)}.record-state{font-weight:700}.record-actions{flex:none;padding-top:10px}#record-notice{font-size:15px;margin:8px 0 0;color:var(--muted)}
@@ -94,7 +94,7 @@ function rememberFirstChecks(report) {
 function formatFeedback(correct, explanation) {
   const prefix = correct ? /^(?:(?:这题|本题)?选对了|(?:回答|答案)?正确|答对了|对)[。！!：:]\s*/ : /^(?:(?:这题|本题)?还没选对|(?:回答|答案)?错误|答错了|不对|错)[。！!：:]\s*/;
   const reason = explanation.trim().replace(prefix, '');
-  return (correct ? '这题选对了。' : '这题还没选对。') + (reason ? ' ' + reason : '');
+  return (correct ? '答对了。' : '还没答对。') + (reason ? '\n' + reason : '');
 }
 function renderResult(report) {
   if (!report.ok) { result.textContent = report.error; return; }
@@ -158,7 +158,7 @@ function renderEvidence() {
     const entry=document.createElement('article');entry.className='evidence-entry';entry.dataset.sequence=record.sequence;
     const heading=document.createElement('h3');heading.textContent=record.title+' · 第'+record.attempt+'次';entry.append(heading);
     const meta=document.createElement('p');meta.className='record-meta';meta.textContent=(record.attempt===1?'首次保存':'后续修改或再次核对')+' · '+new Date(record.timestamp).toLocaleString('zh-CN',{hour12:false});entry.append(meta);
-    const status=document.createElement('p');status.className='record-state';status.textContent=record.result.status==='pending_review'?'待人工复核：未自动判断表达或推理是否成立。':record.result.status==='invalid'?'尚不能核对：'+record.result.message:record.result.outcome==='met'?'已核对：符合本次声明的数值条件。':'已核对：有数值条件尚未符合。';entry.append(status);
+    const status=document.createElement('p');status.className='record-state';status.textContent=record.result.status==='pending_review'?'待人工复核。未自动判断表达或推理是否成立。':record.result.status==='invalid'?'还不能判断。'+record.result.message:record.result.outcome==='met'?'答对了（数值条件符合）。':'还没答对（数值条件未全符合）。';entry.append(status);
     const values=document.createElement('div');values.className='evidence-values';
     for(const [key,value]of Object.entries(record.response)){
       const field=document.createElement('div');if(typeof value!=='number')field.className='evidence-text';
